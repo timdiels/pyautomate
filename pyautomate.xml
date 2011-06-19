@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<?xml-stylesheet type='text/xsl' href='interface.xsl'?>
+<interface xmlns="http://zero-install.sourceforge.net/2004/injector/interface">
+  <name>pyautomate</name>
+  <summary>python automation tool</summary>
+
+  <!--<homepage></homepage>-->
+  <!--<icon href=".png" type="image/png"/>-->
+
+  <feed-for interface="http://limyreth.sin.khk.be/feeds/pyautomate.xml"/>
+
+  <group license="OSI Approved :: GNU General Public License (GPL)">
+
+    <environment insert="test/texttest" name="TEXTTEST_HOME" mode="replace" />
+
+    <command name="manage-tests" >
+      <runner interface="http://limyreth.sin.khk.be/feeds/texttest.xml"/>
+    </command>
+
+    <command name="test" >
+      <runner interface="http://limyreth.sin.khk.be/feeds/texttest.xml">
+        <arg>-g</arg>
+      </runner>
+    </command>
+
+    <command name="run" path="pyautomation/main.py">
+      <runner interface="http://repo.roscidus.com/python/python">
+        <version not-before="3" />
+      </runner>
+    </command>
+
+    <environment insert="" name="PYTHONPATH"/>
+
+    <implementation id="." version="0.1-pre"/>
+
+  </group>
+</interface>

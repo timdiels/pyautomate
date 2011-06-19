@@ -1,0 +1,13 @@
+# System Under Test
+executable:$TEXTTEST_HOME/pyautomate.sh
+interpreter:sh
+
+# Naming scheme to use for files for stdin,stdout and stderr
+filename_convention_scheme:standard
+
+# Expanded name to use for application
+full_name:pyautomate
+
+# http://texttest.carmen.se/index.php?page=documentation_3_21&n=run_dependent_text#run_dependent_text
+[run_dependent_text]
+stderr:(dynamic_gui|tt)\.[0-9]{2}[a-zA-Z]{3}[0-9]{6}\.[0-9]{4}{REPLACE tmp}
