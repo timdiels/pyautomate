@@ -1,8 +1,8 @@
 Failed to execute action: test_server()
 Traceback (most recent call last):
-  File "/home/limyreth/pyautomate/pyautomation/main.py", line 81, in <module>
+  File "/home/limyreth/pyautomate/pyautomation/main.py", line 89, in <module>
     eval(action, vars(config))
   File "<string>", line 1, in <module>
-  File "/home/limyreth/.texttest/tmp/tt.19Jun145445.7511/tt/stop_at_first_failed_action/auto.py", line 25, in test_server
+  File "/home/limyreth/.texttest/tmp/tt.19Jun213554.3577/tt/stop_at_first_failed_action/auto.py", line 25, in test_server
     print(this_will_stop_execution)
 NameError: global name 'this_will_stop_execution' is not defined

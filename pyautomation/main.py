@@ -21,9 +21,17 @@ parser = ArgumentParser(description='Automation tool', prog='auto',
                 epilog='For more information see TODO github link readme')
 parser.add_argument('desired_state', metavar='S', nargs='+', 
                     help='the state to reach')
-parser.add_argument('--file', dest='auto_path', default='auto.py',
+parser.add_argument('--file', '-f', dest='auto_path', default='auto.py',
                     help='the pyautomate config file (default: ./auto.py)')
+parser.add_argument('--verbosity', '-v', default=1, type=int,
+                    help='verbosity of output. 0 for no output, 1 for ' + \
+                    'listing actions, 2 for listing state switches and ' + \
+                    'actions (default: 1)')
 options = parser.parse_args()
+
+import verbosity
+verbosity.init(options.verbosity)
+from verbosity import print0, print1, print2
 
 from importlib import import_module
 from collections import defaultdict
@@ -76,7 +84,7 @@ except EndUnreachableException:
 
 # execute the actions
 for action in action_path:
-    print(action + ' ...')
+    print1(action + ' ...')
     try:
         eval(action, vars(config))
     except:
