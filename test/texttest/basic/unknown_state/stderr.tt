@@ -1,0 +1,2 @@
+usage: auto [-h] [--file AUTO_PATH] S [S ...]
+auto: error: Unknown state in desired state: notastate

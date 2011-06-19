@@ -18,6 +18,13 @@
 from itertools import chain
 from pyautomation.priodict import priorityDictionary
 
+class EndUnreachableException(Exception): pass
+
+class UnknownStateException(Exception):
+    def __init__(self, state):
+        Exception.__init__(self)
+        self.state = state
+
 class NFA(object):
 
     def __init__(self, transitions, start_states, end_states):
@@ -27,15 +34,25 @@ class NFA(object):
             self._transitions[state[0]] = dict(((symbol, frozenset(result)) 
                                              for symbol, result 
                                              in t.items()))
-        print('self.transitions')
-        print(self._transitions)
+
+        _states = self._states
+        for state in end_states:
+            if state not in _states:
+                raise UnknownStateException(state)
 
         self.alphabet = set(chain(*(t.keys() for t in self._transitions.values())))
-        print('self.alphabet')
-        print(self.alphabet)
 
         self.start_states = frozenset(start_states)
         self.end_states = frozenset(end_states)
+
+    @property
+    def _states(self):
+        states = set()
+        for state, t in self._transitions.items():
+            states.add(state)
+            for target_states in t.values():
+                states |= target_states
+        return states
 
     def transition(self, states, symbol):
         new_states = set()
@@ -94,12 +111,6 @@ class NFAAsDFA(object):
             if state == self.end_state: break
 
             for symbol, neighbour in self.get_neighbours(state):
-                print('==' * 10)
-                print(state)
-                print(' v' * 10)
-                print('%s * %s' % (symbol, weights[neighbour]))
-                print(' v' * 10)
-                print(neighbour)
                 path_distance = final_distances[state] + weights[neighbour]
                 if neighbour in final_distances:
                     if path_distance < final_distances[neighbour]:
@@ -110,6 +121,10 @@ class NFAAsDFA(object):
 
         path = []
         end = self.end_state
+        if end not in predecessors:
+            # this means we never even found a path from start to end
+            raise EndUnreachableException()
+
         while end != self.start_state:
             (end, symbol) = predecessors[end]
             path.append(symbol)

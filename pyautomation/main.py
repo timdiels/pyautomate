@@ -16,7 +16,6 @@
 # along with pyautomation.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
-import sys
 
 parser = ArgumentParser(description='Automation tool', prog='auto',
                 epilog='For more information see TODO github link readme')
@@ -24,11 +23,12 @@ parser.add_argument('desired_state', metavar='S', nargs='+',
                     help='the state to reach')
 parser.add_argument('--file', dest='auto_path', default='auto.py',
                     help='the pyautomate config file (default: ./auto.py)')
-options = parser.parse_args(sys.argv)
+options = parser.parse_args()
 
 from importlib import import_module
 from collections import defaultdict
 import os.path
+import sys
 
 auto_path = os.path.abspath(options.auto_path)
 auto_dir, auto_file = os.path.split(auto_path)
@@ -44,25 +44,38 @@ try:
 except ImportError:
     parser.error('Could not find auto file at: %s' % auto_path)
 
-weights = defaultdict(lambda: 10)
-if config.weights:
+weights = defaultdict(lambda: 1000)
+if hasattr(config, 'weights'):
     weights.update(config.weights)
 config.weights = weights
 
-options.desired_state
-
 # do something...
-from pyautomation.automaton import NFA, NFAAsDFA
+from pyautomation.automaton import (
+    NFA, NFAAsDFA, EndUnreachableException, UnknownStateException
+)
 
-nfa = NFA(transitions=config.state_machine,
-          start_states=config.get_initial_state(),
-          end_states=options.desired_state)
+desired_state = [state.replace('_', ' ') for state in options.desired_state]
+
+try:
+    nfa = NFA(transitions=config.state_machine,
+              start_states=config.get_initial_state(),
+              end_states=desired_state)
+except UnknownStateException as ex:
+    parser.error('Unknown state in desired state: %s' % ex.state)
+    print('eeek')
+
 dfa = NFAAsDFA(nfa)
 
-action_path = dfa.get_shortest_path(config.weights)
+try:
+    action_path = dfa.get_shortest_path(config.weights)
+except EndUnreachableException:
+    print('Desired state (%s) is unreachable from (%s)' % (
+        ', '.join(nfa.end_states), ', '.join(nfa.start_states)
+    ))
+    parser.exit(1)
 
 # execute the actions
 for action in action_path:
     print(action + ' ...')
-    sys.eval(action)
+    eval(action, vars(config))
 
