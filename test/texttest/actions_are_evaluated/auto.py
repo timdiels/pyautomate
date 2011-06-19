@@ -10,5 +10,4 @@ state_machine = {
 def get_initial_state():
     return ('server stopped',)
 
-def start_server():
-    pass
+
