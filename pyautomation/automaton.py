@@ -56,33 +56,40 @@ class NFA(object):
                 states |= target_states
         return states
 
-    def transition(self, states, symbol):
-        new_states = set()
+    def transition(self, state, symbol):
+        '''
+        returns the states to which the NFA transitions when given symbol at 
+        state
 
-        for state in states:
-            if state in  self._transitions and symbol in self._transitions[state]:
-                new_states |= self._transitions[state][symbol]
-            else:
-                new_states.add(state)
-
-        return frozenset(new_states)
-
-    def get_neighbours(self, states):
-        '''returns iterable of (symbol, neighbour) of each neighbour of states'''
-        for symbol in self.alphabet:
-            neighbour = self.transition(states, symbol)
-            if neighbour != states:
-                yield (symbol, neighbour) 
-
+        state: a single state
+        '''
+        if state in  self._transitions and symbol in self._transitions[state]:
+            return self._transitions[state][symbol]
+        else:
+            # Note: this is not normal NFA behaviour, but it happened to be
+            # much handier than 'die', which would have been return empty set
+            return frozenset((state,))
+        
 class NFAAsDFA(object):
     def __init__(self, nfa):
         self._nfa = nfa
 
     def transition(self, state, symbol):
-        return self._nfa.transition(state, symbol)
+        new_states = set()
+
+        for nfa_state in state:
+            new_states |= self._nfa.transition(nfa_state, symbol)
+
+        return frozenset(new_states)
 
     def get_neighbours(self, state):
-        return self._nfa.get_neighbours(state)
+        '''returns iterable of (symbol, neighbour) of each neighbour of state
+        
+        Neighbours are all incident states, this includes state itself in case
+        of loops.'''
+        for symbol in self._nfa.alphabet:
+            neighbour = self.transition(state, symbol)
+            yield (symbol, neighbour) 
 
     @property
     def start_state(self):
@@ -113,6 +120,8 @@ class NFAAsDFA(object):
             if state == self.end_state: break
 
             for symbol, neighbour in self.get_neighbours(state):
+                if neighbour == state:
+                    continue
                 path_distance = final_distances[state] + weights[neighbour]
                 if neighbour in final_distances:
                     if path_distance < final_distances[neighbour]:
