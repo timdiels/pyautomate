@@ -1,19 +1,19 @@
 # Copyright 2011 Tim Diels <limyreth@gmail.com>
 #
-# This file is part of pyautomation.
+# This file is part of pyautomate.
 # 
-# pyautomation is free software: you can redistribute it and/or modify
+# pyautomate is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 # 
-# pyautomation is distributed in the hope that it will be useful,
+# pyautomate is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 # 
 # You should have received a copy of the GNU General Public License
-# along with pyautomation.  If not, see <http://www.gnu.org/licenses/>.
+# along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from argparse import ArgumentParser
 
@@ -58,7 +58,7 @@ if hasattr(config, 'weights'):
 config.weights = weights
 
 # do something...
-from pyautomation.automaton import (
+from pyautomate.automaton import (
     NFA, NFAAsDFA, EndUnreachableException, UnknownStateException
 )
 

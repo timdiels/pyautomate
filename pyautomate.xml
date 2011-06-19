@@ -23,7 +23,7 @@
       </runner>
     </command>
 
-    <command name="run" path="pyautomation/main.py">
+    <command name="run" path="pyautomate/main.py">
       <runner interface="http://repo.roscidus.com/python/python">
         <version not-before="3" />
       </runner>
