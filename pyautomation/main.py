@@ -31,7 +31,7 @@ options = parser.parse_args()
 
 import verbosity
 verbosity.init(options.verbosity)
-from verbosity import print0, print1, print2
+from verbosity import print1, print1e, print2, print2e
 
 from importlib import import_module
 from collections import defaultdict
@@ -75,19 +75,39 @@ except UnknownStateException as ex:
 dfa = NFAAsDFA(nfa)
 
 try:
-    action_path = dfa.get_shortest_path(config.weights)
+
+    print2e('Start state:', ', '.join(nfa.start_states))
+    print2e()
+
+    for from_, action, to in dfa.get_shortest_path(config.weights):
+
+        print1e(action)
+
+        if options.verbosity == 2:
+
+            for i, right in enumerate(to):
+
+                if i==0:
+                    fill = '-'
+                    right = '> ' + right
+                    center = action
+                else:
+                    fill = ' '
+                    center = ''
+                center_len = 79 - len(right)
+
+                print('{0:{1}^{3}}{2}'.format(center, fill, right, center_len))
+
+            print()
+
+        try:
+            eval(action, vars(config))
+        except:
+            print('Failed to execute action:', action, file=sys.stderr)
+            raise
+
 except EndUnreachableException:
     print('Desired state (%s) is unreachable from (%s)' % (
         ', '.join(nfa.end_states), ', '.join(nfa.start_states)
     ))
     parser.exit(1)
-
-# execute the actions
-for action in action_path:
-    print1(action + ' ...')
-    try:
-        eval(action, vars(config))
-    except:
-        print('Failed to execute action: %s' % (action), file=sys.stderr)
-        raise
-

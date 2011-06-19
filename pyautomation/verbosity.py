@@ -15,14 +15,26 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomation.  If not, see <http://www.gnu.org/licenses/>.
 
-'''Provides print functions which print depending on the verboseness set'''
+'''
+Provides print functions which print depending on the verboseness set
+
+Provided print functions are of format print n [e], e.g. print1e. n is the
+verbosity, e suffix means exact verbosity match, no e means greater or equal.
+
+'''
 
 def init(verbosity):
     noop = lambda *args, **kwargs: None
-    global print0
-    print0 = print if verbosity >= 0 else noop
-    global print1 
+
+    global print1
     print1 = print if verbosity >= 1 else noop
-    global print2 
+
+    global print1e
+    print1e = print if verbosity == 1 else noop
+
+    global print2
     print2 = print if verbosity >= 2 else noop
+
+    global print2e
+    print2e = print if verbosity == 2 else noop
 

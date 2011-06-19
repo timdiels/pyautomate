@@ -137,7 +137,10 @@ class NFAAsDFA(object):
             raise EndUnreachableException()
 
         while end != self.start_state:
+            to = end
             (end, symbol) = predecessors[end]
-            path.append(symbol)
+            from_ = end
+            path.append((from_, symbol, to))
+
         return reversed(path)
 

@@ -1,0 +1,7 @@
+Start state: server stopped
+
+------------------------start_server()-------------------------> server started
+
+-------------------------test_server()-------------------------> server started
+                                                            server passed tests
+
