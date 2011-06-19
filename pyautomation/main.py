@@ -77,5 +77,9 @@ except EndUnreachableException:
 # execute the actions
 for action in action_path:
     print(action + ' ...')
-    eval(action, vars(config))
+    try:
+        eval(action, vars(config))
+    except:
+        print('Failed to execute action: %s' % (action), file=sys.stderr)
+        raise
 
