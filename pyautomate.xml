@@ -31,7 +31,7 @@
 
     <environment insert="" name="PYTHONPATH"/>
 
-    <implementation id="." version="0.1-pre"/>
+    <implementation id="." version="0.1-post"/>
 
   </group>
 </interface>

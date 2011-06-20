@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
+version = '0.1-post'
+
 from argparse import ArgumentParser
 
 parser = ArgumentParser(description='Automation tool', prog='auto',
@@ -23,10 +25,12 @@ parser.add_argument('desired_state', metavar='S', nargs='+',
                     help='the state to reach')
 parser.add_argument('--file', '-f', dest='auto_path', default='auto.py',
                     help='the pyautomate config file (default: ./auto.py)')
-parser.add_argument('--verbosity', '-v', default=1, type=int,
+parser.add_argument('--verbosity', '-v', metavar='V', default=1, type=int,
                     help='verbosity of output. 0 for no output, 1 for ' + \
                     'listing actions, 2 for listing state switches and ' + \
                     'actions (default: 1)')
+parser.add_argument('--version', action='version', 
+                    version='%(prog)s ' + version)
 options = parser.parse_args()
 
 import verbosity
