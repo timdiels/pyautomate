@@ -27,7 +27,7 @@ obviously be running.
 You usually want to start out by drawing your system on paper, for this case I
 resulted with this `state diagram`__:
 
-.. image:: readme_files/usage_diagram.png
+.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/usage_diagram.png
 
 __ http://en.wikipedia.org/wiki/State_diagram
 
@@ -72,7 +72,7 @@ passed tests') by looking at the transitions of ('server started',).
 
 A case where you would want to specify multiple source states is the following:
 
-.. image:: readme_files/multiple_source_diagram.png
+.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
 
 In this case you would only want to release a new version when both the client
 and the server tests succeed, which is specified as::
