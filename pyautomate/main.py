@@ -63,7 +63,7 @@ config.weights = weights
 
 # do something...
 from pyautomate.automaton import (
-    NFA, NFAAsDFA, EndUnreachableException, UnknownStateException
+    NFA, NFAAsDFA, EndUnreachableException, UnknownStatesException
 )
 
 desired_state = options.desired_state
@@ -72,9 +72,9 @@ try:
     nfa = NFA(transitions=config.state_machine,
               start_states=config.get_initial_state(),
               end_states=desired_state)
-except UnknownStateException as ex:
-    parser.error('Unknown state in desired state: %s' % ex.state)
-    print('eeek')
+except UnknownStatesException as ex:
+    parser.error('Unknown state(s) in desired state: {0}'.format(
+                    ', '.join(ex.states)))
 
 dfa = NFAAsDFA(nfa)
 

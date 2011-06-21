@@ -1,2 +1,2 @@
 usage: auto [-h] [--file AUTO_PATH] [--verbosity V] [--version] S [S ...]
-auto: error: Unknown state in desired state: notastate
+auto: error: Unknown state(s) in desired state: notastate

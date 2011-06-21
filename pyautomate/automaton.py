@@ -15,15 +15,41 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
-from itertools import chain
 from pyautomate.priodict import priorityDictionary
 
 class EndUnreachableException(Exception): pass
 
-class UnknownStateException(Exception):
-    def __init__(self, state):
+class UnknownStatesException(Exception):
+    def __init__(self, states):
         Exception.__init__(self)
-        self.state = state
+        self.states = states
+
+class State(object):
+
+    def __init__(self, transitions):
+        self._transitions = dict()
+        for symbol, target_states in transitions.items():
+            self._transitions[symbol] = StateNames(target_states)
+
+    def transition(self, symbol):
+        '''
+        returns the state names to which the NFA state transitions when given symbol
+        '''
+        if symbol in self._transitions:
+            return self._transitions[symbol]
+        else:
+            return frozenset()
+
+    @property
+    def state_names(self):
+        '''returns names of target states and itself'''
+        return frozenset.union(frozenset(), *self._transitions.values())
+
+    @property
+    def alphabet(self):
+        '''returns symbols known to this state'''
+        return frozenset(self._transitions.keys())
+        
 
 def StateName(name):
     return name.replace('_', ' ')
@@ -35,47 +61,43 @@ class NFA(object):
 
     def __init__(self, transitions, start_states, end_states):
         # process raw transitions to something more usable
-        self._transitions = {}
-        for state_names, t in transitions.items():
-            state = dict()
-            for symbol, target_states in t.items():
-                state[symbol] = StateNames(target_states)
+        self._states = {}
+        for state_names, transitions in transitions.items():
             state_name = StateName(state_names[0])
-            self._transitions[state_name] = state
+            self._states[state_name] = State(transitions)
 
-        self.alphabet = set(chain(*(t.keys() for t in self._transitions.values())))
+        self.alphabet = frozenset.union(frozenset(), *[state.alphabet 
+                                        for state in self._states.values()])
 
         self.start_states = StateNames(start_states)
         self.end_states = StateNames(end_states)
 
-        _states = self._states
-        for state in self.end_states:
-            if state not in _states:
-                raise UnknownStateException(state)
+        _state_names = self._state_names
+        unknown_states = self.end_states - _state_names
+        if unknown_states:
+            raise UnknownStatesException(unknown_states)
 
     @property
-    def _states(self):
-        states = set()
-        for state, t in self._transitions.items():
-            states.add(state)
-            for target_states in t.values():
-                states |= target_states
-        return states
+    def _state_names(self):
+        return frozenset.union(frozenset(), *[state.state_names 
+                               for state in self._states.values()])
 
-    def transition(self, state, symbol):
+    def transition(self, state_name, symbol):
         '''
-        returns the states to which the NFA transitions when given symbol at 
-        state
-
-        state: a single state
+        returns the state names to which the NFA transitions when given symbol
+        at state
         '''
-        if state in  self._transitions and symbol in self._transitions[state]:
-            return self._transitions[state][symbol]
+        if state_name in self._states:
+            target_state_names = self._states[state_name].transition(symbol)
         else:
-            # Note: this is not normal NFA behaviour, but it happened to be
-            # much handier than 'die', which would have been return empty set
-            return frozenset((state,))
-        
+            target_state_names = None
+
+        # when no transition was specified for symbol, assume to transition
+        # to itself (this is not normal behaviour for an NFA, normally it would
+        # die, but that would just not be handy, in fact we'd have to fill it
+        # up with lots of transitions to prevent exactly that)
+        return target_state_names or StateNames((state_name,))
+
 class NFAAsDFA(object):
     def __init__(self, nfa):
         self._nfa = nfa
