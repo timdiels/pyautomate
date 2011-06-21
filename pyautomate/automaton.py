@@ -25,17 +25,20 @@ class UnknownStateException(Exception):
         Exception.__init__(self)
         self.state = state
 
+def State(raw_state):
+    return raw_state.replace('_', ' ')
+
 class NFA(object):
 
     def __init__(self, transitions, start_states, end_states):
         # process raw transitions to something more usable
         self._transitions = {}
         for state, t in transitions.items():
-            state = state[0].replace('_', ' ')
+            state = State(state[0])
             self._transitions[state] = dict()
             for symbol, target_states in t.items():
                 self._transitions[state][symbol] = frozenset(
-                    s.replace('_', ' ') for s in target_states)
+                    State(s) for s in target_states)
 
         _states = self._states
         for state in end_states:
