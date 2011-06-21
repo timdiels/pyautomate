@@ -26,8 +26,8 @@ class UnknownStatesException(Exception):
 
 class State(object):
 
-    def __init__(self, transitions):
-        self._transitions = dict()
+    def __init__(self, state_name, transitions):
+        self._transitions = TransitionDict(lambda: frozenset(state_name))
         for symbol, target_states in transitions.items():
             self._transitions[symbol] = StateNames(target_states)
 
@@ -35,10 +35,7 @@ class State(object):
         '''
         returns the state names to which the NFA state transitions when given symbol
         '''
-        if symbol in self._transitions:
-            return self._transitions[symbol]
-        else:
-            return frozenset()
+        return self._transitions[symbol]
 
     @property
     def state_names(self):
@@ -57,6 +54,15 @@ def StateName(name):
 def StateNames(names):
     return frozenset(StateName(s) for s in names)
 
+from collections import defaultdict
+class TransitionDict(defaultdict):
+    
+    def __init__(self, default_factory):
+        defaultdict.__init__(self, default_factory)
+
+    def __missing__(self, key):
+        return self.default_factory()
+
 class NFA(object):
 
     def __init__(self, transitions, start_states, end_states):
@@ -64,7 +70,7 @@ class NFA(object):
         self._states = {}
         for state_names, transitions in transitions.items():
             state_name = StateName(state_names[0])
-            self._states[state_name] = State(transitions)
+            self._states[state_name] = State(state_name, transitions)
 
         self.alphabet = frozenset.union(frozenset(), *[state.alphabet 
                                         for state in self._states.values()])
@@ -72,15 +78,11 @@ class NFA(object):
         self.start_states = StateNames(start_states)
         self.end_states = StateNames(end_states)
 
-        _state_names = self._state_names
+        _state_names = frozenset.union(frozenset(), *[state.state_names 
+                               for state in self._states.values()])
         unknown_states = self.end_states - _state_names
         if unknown_states:
             raise UnknownStatesException(unknown_states)
-
-    @property
-    def _state_names(self):
-        return frozenset.union(frozenset(), *[state.state_names 
-                               for state in self._states.values()])
 
     def transition(self, state_name, symbol):
         '''
