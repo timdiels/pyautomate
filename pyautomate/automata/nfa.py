@@ -17,69 +17,10 @@
 
 from pyautomate.priodict import priorityDictionary
 
-class EndUnreachableException(Exception): pass
-
-class UnknownStatesException(Exception):
-    def __init__(self, states):
-        Exception.__init__(self)
-        self.states = states
-
-# state
-
-from collections import defaultdict
-class TransitionDict(defaultdict):
-
-    def __init__(self, default_factory):
-        defaultdict.__init__(self, default_factory)
-
-    def __missing__(self, key):
-        return self.default_factory()
-
-class State(object):
-
-    def __init__(self, state_name, transitions):
-        self._transitions = TransitionDict(lambda: frozenset(state_name))
-        for symbol, target_states in transitions.items():
-            self._transitions[symbol] = StateNames(target_states)
-
-    def transition(self, symbol):
-        '''
-        returns the state names to which the NFA state transitions when given symbol
-        '''
-        return self._transitions[symbol]
-
-    @property
-    def state_names(self):
-        '''returns names of target states and itself'''
-        return frozenset.union(frozenset(), *self._transitions.values())
-
-    @property
-    def alphabet(self):
-        '''returns symbols known to this state'''
-        return frozenset(self._transitions.keys())
-        
-
-# nfa
-class DummyState(object):
-    def __init__(self, name):
-        self._name = name
-
-    def transition(self, symbol):
-        return StateNames((self._name,))
-
-class StateDict(defaultdict):
-
-    def __init__(self):
-        defaultdict.__init__(self)
-
-    def __missing__(self, state_name):
-        return DummyState(state_name)
-
-def StateName(name):
-    return name.replace('_', ' ')
-
-def StateNames(names):
-    return frozenset(StateName(s) for s in names)
+from . import UnknownStatesException, EndUnreachableException
+from .state import State
+from .statename import StateName, StateNames
+from .statedict import StateDict
 
 class NFA(object):
 

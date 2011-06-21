@@ -62,7 +62,7 @@ if hasattr(config, 'weights'):
 config.weights = weights
 
 # do something...
-from pyautomate.automaton import (
+from pyautomate.automata import (
     NFA, NFAAsDFA, EndUnreachableException, UnknownStatesException
 )
 

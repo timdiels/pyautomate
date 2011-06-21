@@ -1,0 +1,23 @@
+# Copyright 2011 Tim Diels <limyreth@gmail.com>
+#
+# This file is part of pyautomate.
+# 
+# pyautomate is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# pyautomate is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
+
+def StateName(name):
+    return name.replace('_', ' ')
+
+def StateNames(names):
+    return frozenset(StateName(s) for s in names)
+
