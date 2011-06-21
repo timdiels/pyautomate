@@ -24,6 +24,17 @@ class UnknownStatesException(Exception):
         Exception.__init__(self)
         self.states = states
 
+# state
+
+from collections import defaultdict
+class TransitionDict(defaultdict):
+
+    def __init__(self, default_factory):
+        defaultdict.__init__(self, default_factory)
+
+    def __missing__(self, key):
+        return self.default_factory()
+
 class State(object):
 
     def __init__(self, state_name, transitions):
@@ -48,26 +59,38 @@ class State(object):
         return frozenset(self._transitions.keys())
         
 
+# nfa
+class DummyState(object):
+    def __init__(self, name):
+        self._name = name
+
+    def transition(self, symbol):
+        return StateNames((self._name,))
+
+class StateDict(defaultdict):
+
+    def __init__(self):
+        defaultdict.__init__(self)
+
+    def __missing__(self, state_name):
+        return DummyState(state_name)
+
 def StateName(name):
     return name.replace('_', ' ')
 
 def StateNames(names):
     return frozenset(StateName(s) for s in names)
 
-from collections import defaultdict
-class TransitionDict(defaultdict):
-    
-    def __init__(self, default_factory):
-        defaultdict.__init__(self, default_factory)
-
-    def __missing__(self, key):
-        return self.default_factory()
-
 class NFA(object):
+
+    '''
+    Note: unspecified transitions default to transitioning in a loop to itself.
+    This isn't normal NFA behaviour, but it sure is a lot handier.
+    '''
 
     def __init__(self, transitions, start_states, end_states):
         # process raw transitions to something more usable
-        self._states = {}
+        self._states = StateDict()
         for state_names, transitions in transitions.items():
             state_name = StateName(state_names[0])
             self._states[state_name] = State(state_name, transitions)
@@ -89,16 +112,7 @@ class NFA(object):
         returns the state names to which the NFA transitions when given symbol
         at state
         '''
-        if state_name in self._states:
-            target_state_names = self._states[state_name].transition(symbol)
-        else:
-            target_state_names = None
-
-        # when no transition was specified for symbol, assume to transition
-        # to itself (this is not normal behaviour for an NFA, normally it would
-        # die, but that would just not be handy, in fact we'd have to fill it
-        # up with lots of transitions to prevent exactly that)
-        return target_state_names or StateNames((state_name,))
+        return self._states[state_name].transition(symbol)
 
 class NFAAsDFA(object):
     def __init__(self, nfa):
