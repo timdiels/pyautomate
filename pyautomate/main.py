@@ -66,7 +66,7 @@ from pyautomate.automaton import (
     NFA, NFAAsDFA, EndUnreachableException, UnknownStateException
 )
 
-desired_state = [state.replace('_', ' ') for state in options.desired_state]
+desired_state = options.desired_state
 
 try:
     nfa = NFA(transitions=config.state_machine,

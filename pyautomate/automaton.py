@@ -25,32 +25,33 @@ class UnknownStateException(Exception):
         Exception.__init__(self)
         self.state = state
 
-def State(raw_state):
-    return raw_state.replace('_', ' ')
+def StateName(name):
+    return name.replace('_', ' ')
 
-def States(raw_states):
-    return frozenset(State(s) for s in raw_states)
+def StateNames(names):
+    return frozenset(StateName(s) for s in names)
 
 class NFA(object):
 
     def __init__(self, transitions, start_states, end_states):
         # process raw transitions to something more usable
         self._transitions = {}
-        for state, t in transitions.items():
-            state = State(state[0])
-            self._transitions[state] = dict()
+        for state_names, t in transitions.items():
+            state = dict()
             for symbol, target_states in t.items():
-                self._transitions[state][symbol] = States(target_states)
-
-        _states = self._states
-        for state in end_states:
-            if state not in _states:
-                raise UnknownStateException(state)
+                state[symbol] = StateNames(target_states)
+            state_name = StateName(state_names[0])
+            self._transitions[state_name] = state
 
         self.alphabet = set(chain(*(t.keys() for t in self._transitions.values())))
 
-        self.start_states = frozenset(start_states)
-        self.end_states = frozenset(end_states)
+        self.start_states = StateNames(start_states)
+        self.end_states = StateNames(end_states)
+
+        _states = self._states
+        for state in self.end_states:
+            if state not in _states:
+                raise UnknownStateException(state)
 
     @property
     def _states(self):
