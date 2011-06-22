@@ -47,43 +47,56 @@ The auto.py file contains:
 
 1.1 state_machine
 '''''''''''''''''
-Transform your diagram into the state_machine data structure::
+Transform your diagram into `YAML`_ code that describes each state::
 
-  state_machine = {
-      ('server stopped',) : {
-          'start_server()' : ('server started',)
-      },
-      ('server started',) : {
-          'stop_server()' : ('server stopped',),
-          'test_server()' : ('server started', 'server passed tests')
-      }
-  }
+  states = '''
+  - name: server stopped
 
+    transitions:
 
-This is a dictionary with a tuple of source states as key and another dict with
-possible transitions from that state to other states. The transition dict takes
-an action as key (this is a string of python code which will be executed when
-transitioning to the target state), and a tuple of new states as value.
+        - action: start_server()
+          to: server started
+
+  - name: server started
+
+    transitions:
+
+        - action: stop_server()
+          to: server stopped
+
+        - action: test_server()
+          to: 
+              - server started
+              - server passed tests
+  '''
+
+The action of each transition is python code that will be executed when the
+transition is followed.
 
 Note that the source state only needs to match the current state partially.
 For example, when the current state is ('server started', 'server passed tests'),
 it is clever enough to notice that it can get to ('server stopped', 'server
 passed tests') by looking at the transitions of ('server started',).
 
-A case where you would want to specify multiple source states is the following:
+Tip: you can put the YAML in a separate file like so::
 
-.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
+  with open('states.yaml') as f:
+      states = f.read()
 
-In this case you would only want to release a new version when both the client
-and the server tests succeed, which is specified as::
+.. A case where you would want to specify multiple source states is the following:
 
-  state_machine = {
-      ('server passed tests', 'client passed tests') : {
-          'release()' : ('server passed tests', 'client passed tests',
-                         'released version')
-      }
-      # other states and transitions omitted for brevity
-  }
+.. .. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
+
+.. In this case you would only want to release a new version when both the client
+  and the server tests succeed, which is specified as::
+
+..    state_machine = {
+        ('server passed tests', 'client passed tests') : {
+            'release()' : ('server passed tests', 'client passed tests',
+                           'released version')
+        }
+        # other states and transitions omitted for brevity
+    }
 
 1.2 get_initial_state
 '''''''''''''''''''''
@@ -161,3 +174,4 @@ specifying state machines more easily.
 
 Partial desired state, rather than requiring a full state.
 
+.. _YAML: http://en.wikipedia.org/wiki/YAML

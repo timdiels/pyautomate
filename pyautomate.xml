@@ -11,7 +11,10 @@
 
   <group license="OSI Approved :: GNU General Public License (GPL)">
 
+    <requires interface="http://limyreth.sin.khk.be/feeds/pyyaml.xml"/>
+
     <environment insert="test/texttest" name="TEXTTEST_HOME" mode="replace" />
+    <environment insert="" name="PYTHONPATH"/>
 
     <command name="manage-tests" >
       <runner interface="http://limyreth.sin.khk.be/feeds/texttest.xml"/>
@@ -28,8 +31,6 @@
         <version not-before="3" />
       </runner>
     </command>
-
-    <environment insert="" name="PYTHONPATH"/>
 
     <implementation id="." version="0.1-post"/>
 

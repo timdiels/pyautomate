@@ -71,12 +71,13 @@ desired_state = options.desired_state
 # process raw transitions to something more usable
 from pyautomate.automata.state import State
 from pyautomate.automata.statedict import StateDict
-from pyautomate.automata.statename import StateName
+import yaml
 
+raw_states = yaml.load(config.states)
 states = StateDict()
-for state_names, transitions in config.state_machine.items():
-    state_name = StateName(state_names[0])
-    states[state_name] = State(state_name, transitions)
+for raw_state in raw_states:
+    state = State(raw_state)
+    states[state.name] = state
 
 try:
     nfa = NFA(states=states,

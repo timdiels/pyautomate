@@ -1,11 +1,11 @@
-# weightless
-# not deterministic
+states = '''
+- name: server_stopped
 
-state_machine = {
-    ('server stopped',) : {
-        'start_server()' : ('server_started',)
-    },
-}
+  transitions:
+
+      - action: start_server()
+        to: server_started
+'''
 
 def get_initial_state():
     return ('server stopped',)

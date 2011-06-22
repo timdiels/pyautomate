@@ -17,6 +17,7 @@
 
 from collections import defaultdict
 from .statename import StateNames
+from pyautomate.automata.statename import StateName
 
 class _TransitionDict(defaultdict):
 
@@ -28,10 +29,18 @@ class _TransitionDict(defaultdict):
 
 class State(object):
 
-    def __init__(self, state_name, transitions):
-        self._transitions = _TransitionDict(lambda: frozenset(state_name))
-        for symbol, target_states in transitions.items():
-            self._transitions[symbol] = StateNames(target_states)
+    def __init__(self, raw):
+        self._name = StateName(raw['name'])
+        self._transitions = _TransitionDict(lambda: frozenset(self._name))
+        for raw_transition in raw['transitions']:
+            target = raw_transition['to']
+            if not isinstance(target, list):
+                target = [target]
+            self._transitions[raw_transition['action']] = StateNames(target)
+
+    @property
+    def name(self):
+        return self._name
 
     def transition(self, symbol):
         '''
