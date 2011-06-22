@@ -68,10 +68,20 @@ from pyautomate.automata import (
 
 desired_state = options.desired_state
 
+# process raw transitions to something more usable
+from pyautomate.automata.state import State
+from pyautomate.automata.statedict import StateDict
+from pyautomate.automata.statename import StateName
+
+states = StateDict()
+for state_names, transitions in config.state_machine.items():
+    state_name = StateName(state_names[0])
+    states[state_name] = State(state_name, transitions)
+
 try:
-    nfa = NFA(transitions=config.state_machine,
-              start_states=config.get_initial_state(),
-              end_states=desired_state)
+    nfa = NFA(states=states,
+              raw_start_states=config.get_initial_state(),
+              raw_end_states=desired_state)
 except UnknownStatesException as ex:
     parser.error('Unknown state(s) in desired state: {0}'.format(
                     ', '.join(ex.states)))

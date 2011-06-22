@@ -18,29 +18,18 @@
 from pyautomate.priodict import priorityDictionary
 
 from . import UnknownStatesException, EndUnreachableException
-from .state import State
-from .statename import StateName, StateNames
-from .statedict import StateDict
+from .statename import StateNames
 
 class NFA(object):
 
-    '''
-    Note: unspecified transitions default to transitioning in a loop to itself.
-    This isn't normal NFA behaviour, but it sure is a lot handier.
-    '''
-
-    def __init__(self, transitions, start_states, end_states):
-        # process raw transitions to something more usable
-        self._states = StateDict()
-        for state_names, transitions in transitions.items():
-            state_name = StateName(state_names[0])
-            self._states[state_name] = State(state_name, transitions)
+    def __init__(self, states, raw_start_states, raw_end_states):
+        self._states = states
 
         self.alphabet = frozenset.union(frozenset(), *[state.alphabet 
                                         for state in self._states.values()])
 
-        self.start_states = StateNames(start_states)
-        self.end_states = StateNames(end_states)
+        self.start_states = StateNames(raw_start_states)
+        self.end_states = StateNames(raw_end_states)
 
         _state_names = frozenset.union(frozenset(), *[state.state_names 
                                for state in self._states.values()])
