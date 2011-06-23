@@ -1,8 +1,13 @@
 pyautomate is an automation tool. pyautomate can be used to automate any set
 of tasks. pyautomate offers a KISS CLI + auto.py config file interface. Unlike
-other tools, you describe a system as a state machine and specify how to get
+other tools, you describe a system as a `state machine`_ and specify how to get
 from one state to the other. You then use the CLI to specify the state you want
-to reach, and pyautomate will get it done.
+to reach, and pyautomate will get it done. 
+
+To get a good idea of what pyautomate can do for you I suggest you have a quick
+scroll through `the usage section`__.
+
+__ `usage`_
 
 If you would like to use it as a library, let me know
 (limyreth@gmail.com) and I'll provide you with a documented API.
@@ -17,10 +22,34 @@ you can just run it.
 The 0install feed (with instructions):
 http://limyreth.sin.khk.be/feeds/pyautomate.xml
 
+pyautomate's state machine
+==========================
+pyautomate's state machine is a non-deterministic finite state machine (NFA)
+with the concept of guards added to its transitions, i.e. the transition can
+only be taken if the guard is true. If that made no sense to you, read on.
+
+pyautomate's state machine is a system based on states and transitions between
+those states. The machine starts in one or more initial states and can be asked to try to
+get to a desired state. A transition consists of a source state, multiple
+target states and the action to execute in order to make the transition.
+
+The state machine can be represented as a state diagram, e.g.:
+
+.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/usage_diagram.png
+
+The state machine can be in multiple states at the same time (as it is
+non-deterministic). E.g. when executing 'test_server()' with 'server started'
+as current state, the machine will switch to both 'server started' and 'server
+passed tests'. After that, it can still make a transition to 'server stopped'
+and 'server passed tests' by executing 'stop_server()'.
+
 Usage
 =====
+If you're not familiar with state machines, you should read `the above`__ first.
 
-I'll explain by using a simple example: developing a daemon. I want to
+__ `state machine`_
+
+I'll explain pyautomate with a simple example: developing a daemon. I want to
 start, stop the daemon and run tests. If I want to run tests, the daemon should
 obviously be running.
 
@@ -28,6 +57,8 @@ You usually want to start out by drawing your system on paper, for this case I
 resulted with this `state diagram`__:
 
 .. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/usage_diagram.png
+
+This represents your state machine.
 
 __ http://en.wikipedia.org/wiki/State_diagram
 
@@ -83,20 +114,24 @@ Tip: you can put the YAML in a separate file like so::
   with open('states.yaml') as f:
       states = f.read()
 
-.. A case where you would want to specify multiple source states is the following:
+Guards
+``````
+In some cases you may want to use guards to limit when a transition can be
+done. Here's an example:
 
-.. .. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
+.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
 
-.. In this case you would only want to release a new version when both the client
-  and the server tests succeed, which is specified as::
+In this case you would only want to release a new version when both the client
+and the server tests succeed, which is specified as::
 
-..    state_machine = {
+    state_machine = {
         ('server passed tests', 'client passed tests') : {
             'release()' : ('server passed tests', 'client passed tests',
                            'released version')
         }
         # other states and transitions omitted for brevity
     }
+
 
 1.2 get_initial_state
 '''''''''''''''''''''
@@ -109,8 +144,8 @@ provide it with a get_initial_state function::
 
 This function returns a tuple with the state in which the system starts.
 
-1.3 action functions
-''''''''''''''''''''
+1.3 implement the actions
+'''''''''''''''''''''''''
 Now we'll define functions for anything we used as an action::
 
   # they don't really have to be defined here, they just have to be available
@@ -174,4 +209,6 @@ specifying state machines more easily.
 
 Partial desired state, rather than requiring a full state.
 
+
 .. _YAML: http://en.wikipedia.org/wiki/YAML
+.. _state machine: `pyautomate's state machine`_
