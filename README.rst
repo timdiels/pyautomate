@@ -119,19 +119,54 @@ Guards
 In some cases you may want to use guards to limit when a transition can be
 done. Here's an example:
 
-.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/multiple_source_diagram.png
+.. image:: https://github.com/limyreth/pyautomate/raw/master/readme_files/guard_diagram.png
 
 In this case you would only want to release a new version when both the client
-and the server tests succeed, which is specified as::
+and the server tests succeed, so we'll use a guard for that, which is specified as::
 
-    state_machine = {
-        ('server passed tests', 'client passed tests') : {
-            'release()' : ('server passed tests', 'client passed tests',
-                           'released version')
-        }
-        # other states and transitions omitted for brevity
-    }
+  states = '''
 
+  - name: not released
+
+    transitions:
+
+        - action: release()
+          to: released last version
+          guard:
+              state contains:
+                  - server passed tests
+                  - client passed tests
+
+  - name: server stopped
+
+    transitions:
+
+        - action: start_server()
+          to: server started
+
+  - name: server started
+
+    transitions:
+
+        - action: stop_server()
+          to: server stopped
+
+        - action: test_server()
+          to: 
+              - server started
+              - server passed tests
+
+  - name: client untested
+
+    transitions:
+
+        - action: test_client()
+          to: client passed tests
+
+  '''
+
+I.e. not_released will only run when the state machine's current state
+partially matches ('server passed tests', 'client passed tests')
 
 1.2 get_initial_state
 '''''''''''''''''''''

@@ -23,7 +23,7 @@ class _DummyState(object):
     def __init__(self, name):
         self._name = name
 
-    def transition(self, symbol):
+    def transition(self, symbol, current_states):
         return StateNames((self._name,))
 
 class StateDict(defaultdict):

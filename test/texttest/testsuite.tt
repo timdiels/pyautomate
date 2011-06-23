@@ -12,3 +12,4 @@ stop_at_first_failed_action
 # state_machine's states may use '_' instead of ' '
 underscore_in_auto_file
 version
+guard

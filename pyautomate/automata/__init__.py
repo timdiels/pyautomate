@@ -23,3 +23,5 @@ class UnknownStatesException(Exception):
         self.states = states
 
 from .nfa import NFA, NFAAsDFA
+from .guardedstate import GuardedState
+from .statedict import StateDict

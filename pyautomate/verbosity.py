@@ -38,3 +38,7 @@ def init(verbosity):
     global print2e
     print2e = print if verbosity == 2 else noop
 
+    # for debug
+    global printd
+    printd = print if verbosity >= 3 else noop
+

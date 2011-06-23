@@ -16,6 +16,7 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyautomate.priodict import priorityDictionary
+from pyautomate.verbosity import printd
 
 from . import UnknownStatesException, EndUnreachableException
 from .statename import StateNames
@@ -37,12 +38,12 @@ class NFA(object):
         if unknown_states:
             raise UnknownStatesException(unknown_states)
 
-    def transition(self, state_name, symbol):
+    def transition(self, state_name, symbol, current_states):
         '''
         returns the state names to which the NFA transitions when given symbol
         at state
         '''
-        return self._states[state_name].transition(symbol)
+        return self._states[state_name].transition(symbol, current_states)
 
 class NFAAsDFA(object):
     def __init__(self, nfa):
@@ -52,7 +53,7 @@ class NFAAsDFA(object):
         new_states = set()
 
         for nfa_state in state:
-            new_states |= self._nfa.transition(nfa_state, symbol)
+            new_states |= self._nfa.transition(nfa_state, symbol, state)
 
         return frozenset(new_states)
 
@@ -89,13 +90,17 @@ class NFAAsDFA(object):
         estimated_distances = priorityDictionary()  # est.dist. of non-final vert.
         estimated_distances[self.start_state] = 0
 
+        printd('contacting neighbours for path')
         for state in estimated_distances:
+            printd()
+            printd(state)
             final_distances[state] = estimated_distances[state]
             if state == self.end_state: break
 
             for symbol, neighbour in self.get_neighbours(state):
                 if neighbour == state:
                     continue
+                printd('{0}: {1}'.format(symbol, neighbour))
                 path_distance = final_distances[state] + weights[neighbour]
                 if neighbour in final_distances:
                     if path_distance < final_distances[neighbour]:

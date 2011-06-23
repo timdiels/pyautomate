@@ -16,8 +16,7 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import defaultdict
-from .statename import StateNames
-from pyautomate.automata.statename import StateName
+from .statename import StateNames, StateName
 
 class _TransitionDict(defaultdict):
 
@@ -29,9 +28,11 @@ class _TransitionDict(defaultdict):
 
 class State(object):
 
+    '''A regular NFA/DFA state'''
+
     def __init__(self, raw):
         self._name = StateName(raw['name'])
-        self._transitions = _TransitionDict(lambda: frozenset(self._name))
+        self._transitions = _TransitionDict(lambda: frozenset((self._name,)))
         for raw_transition in raw['transitions']:
             target = raw_transition['to']
             if not isinstance(target, list):
@@ -42,7 +43,7 @@ class State(object):
     def name(self):
         return self._name
 
-    def transition(self, symbol):
+    def transition(self, symbol, current_states):
         '''
         returns the state names to which the NFA state transitions when given symbol
         '''
@@ -57,4 +58,4 @@ class State(object):
     def alphabet(self):
         '''returns symbols known to this state'''
         return frozenset(self._transitions.keys())
- 
+

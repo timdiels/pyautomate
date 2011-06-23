@@ -1,0 +1,4 @@
+test_client()
+start_server()
+test_server()
+release()

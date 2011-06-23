@@ -33,9 +33,9 @@ parser.add_argument('--version', action='version',
                     version='%(prog)s ' + version)
 options = parser.parse_args()
 
-import verbosity
-verbosity.init(options.verbosity)
-from verbosity import print1, print1e, print2, print2e
+import pyautomate.verbosity
+pyautomate.verbosity.init(options.verbosity)
+from pyautomate.verbosity import print1, print1e, print2, print2e
 
 from importlib import import_module
 from collections import defaultdict
@@ -69,14 +69,13 @@ from pyautomate.automata import (
 desired_state = options.desired_state
 
 # process raw transitions to something more usable
-from pyautomate.automata.state import State
-from pyautomate.automata.statedict import StateDict
+from pyautomate.automata import GuardedState, StateDict
 import yaml
 
 raw_states = yaml.load(config.states)
 states = StateDict()
 for raw_state in raw_states:
-    state = State(raw_state)
+    state = GuardedState(raw_state)
     states[state.name] = state
 
 try:
