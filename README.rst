@@ -220,7 +220,8 @@ I like to make the following alias for pyautomate::
 Some examples::
 
   # all the examples are executed from the same directory as the auto.py file
-  # (use --file param if you insist on running elsewhere)
+  # (use --file param if you want to run elsewhere, note that pyautomate will
+  cd to the directory where the file is located before executing it)
 
   # tests the server, and makes sure it's stopped afterwards
   auto 'server passed tests' 'server stopped'
@@ -228,8 +229,14 @@ Some examples::
   # you can use underscores instead of spaces
   auto server_passed_tests server_stopped
 
-You currently have to specify the full desired state. 
-  
+  # note that you don't have to specify the exact state a partial state will
+  # do, e.g. if we don't care if the server is running or not but just want it
+  # tested
+  auto server_passed_tests
+
+  # if you really do want an exact match, you can specify --exact to force this
+  auto --exact server_passed_tests server_stopped
+
 More examples
 =============
 None, currently.

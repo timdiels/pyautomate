@@ -1,1 +1,1 @@
-'server stopped' 'server passed tests'
+--exact 'server stopped' 'server passed tests'

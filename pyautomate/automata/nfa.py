@@ -32,11 +32,14 @@ class NFA(object):
         self.start_states = StateNames(raw_start_states)
         self.end_states = StateNames(raw_end_states)
 
-        _state_names = frozenset.union(frozenset(), *[state.state_names 
-                               for state in self._states.values()])
-        unknown_states = self.end_states - _state_names
+        unknown_states = self.end_states - self.state_names
         if unknown_states:
             raise UnknownStatesException(unknown_states)
+
+    @property
+    def state_names(self):
+        return frozenset.union(frozenset(), *[state.state_names 
+                               for state in self._states.values()])
 
     def transition(self, state_name, symbol, current_states):
         '''
@@ -46,6 +49,10 @@ class NFA(object):
         return self._states[state_name].transition(symbol, current_states)
 
 class NFAAsDFA(object):
+
+    # Note: nfa state variables are named explicitly (e.g. nfa_state), dfa
+    # states aren't (e.g. state)
+
     def __init__(self, nfa):
         self._nfa = nfa
 
@@ -74,10 +81,17 @@ class NFAAsDFA(object):
     def end_state(self):
         return self._nfa.end_states
 
-    def get_shortest_path(self, weights):
+    def get_shortest_path(self, exact, weights):
         '''returns shortest path from start to end as list of actions
+        exact: whether the end state should be matched partially or exactly
         weights: {symbol : weight}
         '''
+        printd('exact', exact)
+        if exact:
+            reached_destination = lambda: state == self.end_state
+        else:
+            reached_destination = lambda: self.end_state.issubset(state)
+
         if self.start_state == self.end_state:
             return ()
 
@@ -90,12 +104,16 @@ class NFAAsDFA(object):
         estimated_distances = priorityDictionary()  # est.dist. of non-final vert.
         estimated_distances[self.start_state] = 0
 
-        printd('contacting neighbours for path')
+        end = None
+        printd('contacting neighbours for path to', self.end_state)
         for state in estimated_distances:
             printd()
             printd(state)
             final_distances[state] = estimated_distances[state]
-            if state == self.end_state: break
+            if reached_destination(): 
+                if exact: end = self.end_state
+                else: end = state
+                break
 
             for symbol, neighbour in self.get_neighbours(state):
                 if neighbour == state:
@@ -110,9 +128,8 @@ class NFAAsDFA(object):
                     predecessors[neighbour] = (state, symbol)
 
         path = []
-        end = self.end_state
-        if end not in predecessors:
-            # this means we never even found a path from start to end
+        if not end:
+            # this means we found no path to our destination
             raise EndUnreachableException()
 
         while end != self.start_state:

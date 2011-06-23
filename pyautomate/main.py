@@ -22,9 +22,12 @@ from argparse import ArgumentParser
 parser = ArgumentParser(description='Automation tool', prog='auto',
                 epilog='For more information see TODO github link readme')
 parser.add_argument('desired_state', metavar='S', nargs='+', 
-                    help='the state to reach')
+                    help='a state to reach')
 parser.add_argument('--file', '-f', dest='auto_path', default='auto.py',
                     help='the pyautomate config file (default: ./auto.py)')
+parser.add_argument('--exact', '-e', default=False, action='store_true',
+                    help='when specified desired state must be matched ' + \
+                    'exactly (default: partial match)')
 parser.add_argument('--verbosity', '-v', metavar='V', default=1, type=int,
                     help='verbosity of output. 0 for no output, 1 for ' + \
                     'listing actions, 2 for listing state switches and ' + \
@@ -93,7 +96,7 @@ try:
     print2e('Start state:', ', '.join(nfa.start_states))
     print2e()
 
-    for from_, action, to in dfa.get_shortest_path(config.weights):
+    for from_, action, to in dfa.get_shortest_path(options.exact, config.weights):
 
         print1e(action)
 

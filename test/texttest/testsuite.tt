@@ -13,3 +13,6 @@ stop_at_first_failed_action
 underscore_in_auto_file
 version
 guard
+
+# partial match of desired state
+partial

@@ -1,2 +1,3 @@
-usage: auto [-h] [--file AUTO_PATH] [--verbosity V] [--version] S [S ...]
-auto: error: Could not find auto file at: /home/limyreth/.texttest/tmp/tt.20Jun210859.5917/tt/missing_auto/auto.py
+usage: auto [-h] [--file AUTO_PATH] [--exact] [--verbosity V] [--version]
+            S [S ...]
+auto: error: Could not find auto file at: /home/limyreth/.texttest/tmp/tt.24Jun000630.3682/tt/missing_auto/auto.py

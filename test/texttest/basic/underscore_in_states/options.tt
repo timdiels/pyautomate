@@ -1,1 +1,1 @@
-server_started 'server passed tests'
+--exact server_started 'server passed tests'

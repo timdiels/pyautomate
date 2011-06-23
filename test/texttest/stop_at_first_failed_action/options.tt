@@ -1,1 +1,1 @@
-server_stopped server_passed_tests
+--exact server_stopped server_passed_tests
