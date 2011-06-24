@@ -17,114 +17,118 @@
 
 version = '0.1-post'
 
-from argparse import ArgumentParser
-
-parser = ArgumentParser(description='Automation tool', prog='auto',
+def make_parser():
+    from argparse import ArgumentParser
+    parser = ArgumentParser(description='Automation tool', prog='auto',
                 epilog='For more information see TODO github link readme')
-parser.add_argument('desired_state', metavar='S', nargs='+', 
+    parser.add_argument('desired_state', metavar='S', nargs='+', 
                     help='a state to reach')
-parser.add_argument('--file', '-f', dest='auto_path', default='auto.py',
+    parser.add_argument('--file', '-f', dest='auto_path', default='auto.py',
                     help='the pyautomate config file (default: ./auto.py)')
-parser.add_argument('--exact', '-e', default=False, action='store_true',
+    parser.add_argument('--exact', '-e', default=False, action='store_true',
                     help='when specified desired state must be matched ' + \
                     'exactly (default: partial match)')
-parser.add_argument('--verbosity', '-v', metavar='V', default=1, type=int,
+    parser.add_argument('--verbosity', '-v', metavar='V', default=1, type=int,
                     help='verbosity of output. 0 for no output, 1 for ' + \
                     'listing actions, 2 for listing state switches and ' + \
                     'actions (default: 1)')
-parser.add_argument('--version', action='version', 
+    parser.add_argument('--version', action='version', 
                     version='%(prog)s ' + version)
+    return parser
+
+def load_auto_file(auto_path):
+    from importlib import import_module
+    from collections import defaultdict
+    import os.path
+    import sys
+
+    auto_path = os.path.abspath(auto_path)
+    auto_dir, auto_file = os.path.split(auto_path)
+
+    # allow importing
+    sys.path.insert(0, auto_dir)
+
+    # set it as working dir as this allows easier auto files
+    os.chdir(auto_dir)
+    auto_module_name = os.path.splitext(auto_file)[0]
+    try:
+        config = import_module(auto_module_name)
+    except ImportError:
+        parser.error('Could not find auto file at: %s' % auto_path)
+
+    weights = defaultdict(lambda: 1000)
+    if hasattr(config, 'weights'):
+        weights.update(config.weights)
+    config.weights = weights
+
+    return config
+
+def make_dfa(config, desired_state):
+    from pyautomate.automata import GuardedState, StateDict, NFA, NFAAsDFA, \
+        UnknownStatesException
+    import yaml
+
+    raw_states = yaml.load(config.states)
+    states = StateDict()
+    for raw_state in raw_states:
+        state = GuardedState(raw_state)
+        states[state.name] = state
+
+    try:
+        nfa = NFA(states=states,
+                  raw_start_states=config.get_initial_state(),
+                  raw_end_states=desired_state)
+    except UnknownStatesException as ex:
+        parser.error('Unknown state(s) in desired state: {0}'.format(
+                        ', '.join(ex.states)))
+    return NFAAsDFA(nfa)
+
+def execute_path(dfa, exact):
+    from pyautomate.automata import EndUnreachableException
+    import sys
+
+    try:
+        for from_, action, to in dfa.get_shortest_path(exact, config.weights):
+
+            print1e(action)
+
+            if options.verbosity == 2:
+
+                for i, right in enumerate(to):
+
+                    if i==0:
+                        fill = '-'
+                        right = '> ' + right
+                        center = action
+                    else:
+                        fill = ' '
+                        center = ''
+                    center_len = 79 - len(right)
+
+                    print('{0:{1}^{3}}{2}'.format(center, fill, right, center_len))
+
+                print()
+
+            try:
+                eval(action, vars(config))
+            except:
+                print('Failed to execute action:', action, file=sys.stderr)
+                raise
+
+    except EndUnreachableException:
+        print('Desired state (%s) is unreachable from (%s)' % (
+            ', '.join(dfa.end_state), ', '.join(dfa.start_state)
+        ))
+        parser.exit(1)
+
+parser = make_parser()
 options = parser.parse_args()
 
 import pyautomate.verbosity
 pyautomate.verbosity.init(options.verbosity)
 from pyautomate.verbosity import print1, print1e, print2, print2e
 
-from importlib import import_module
-from collections import defaultdict
-import os.path
-import sys
+config = load_auto_file(options.auto_path)
+dfa = make_dfa(config, options.desired_state)
+execute_path(dfa, options.exact)
 
-auto_path = os.path.abspath(options.auto_path)
-auto_dir, auto_file = os.path.split(auto_path)
-
-# allow importing
-sys.path.insert(0, auto_dir)
-
-# set it as working dir as this allows easier auto files
-os.chdir(auto_dir)
-auto_module_name = os.path.splitext(auto_file)[0]
-try:
-    config = import_module(auto_module_name)
-except ImportError:
-    parser.error('Could not find auto file at: %s' % auto_path)
-
-weights = defaultdict(lambda: 1000)
-if hasattr(config, 'weights'):
-    weights.update(config.weights)
-config.weights = weights
-
-# do something...
-from pyautomate.automata import (
-    NFA, NFAAsDFA, EndUnreachableException, UnknownStatesException
-)
-
-desired_state = options.desired_state
-
-# process raw transitions to something more usable
-from pyautomate.automata import GuardedState, StateDict
-import yaml
-
-raw_states = yaml.load(config.states)
-states = StateDict()
-for raw_state in raw_states:
-    state = GuardedState(raw_state)
-    states[state.name] = state
-
-try:
-    nfa = NFA(states=states,
-              raw_start_states=config.get_initial_state(),
-              raw_end_states=desired_state)
-except UnknownStatesException as ex:
-    parser.error('Unknown state(s) in desired state: {0}'.format(
-                    ', '.join(ex.states)))
-
-dfa = NFAAsDFA(nfa)
-
-try:
-
-    print2e('Start state:', ', '.join(nfa.start_states))
-    print2e()
-
-    for from_, action, to in dfa.get_shortest_path(options.exact, config.weights):
-
-        print1e(action)
-
-        if options.verbosity == 2:
-
-            for i, right in enumerate(to):
-
-                if i==0:
-                    fill = '-'
-                    right = '> ' + right
-                    center = action
-                else:
-                    fill = ' '
-                    center = ''
-                center_len = 79 - len(right)
-
-                print('{0:{1}^{3}}{2}'.format(center, fill, right, center_len))
-
-            print()
-
-        try:
-            eval(action, vars(config))
-        except:
-            print('Failed to execute action:', action, file=sys.stderr)
-            raise
-
-except EndUnreachableException:
-    print('Desired state (%s) is unreachable from (%s)' % (
-        ', '.join(nfa.end_states), ', '.join(nfa.start_states)
-    ))
-    parser.exit(1)

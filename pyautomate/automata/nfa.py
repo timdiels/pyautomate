@@ -16,7 +16,7 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyautomate.priodict import priorityDictionary
-from pyautomate.verbosity import printd
+from pyautomate.verbosity import printd, print2e
 
 from . import UnknownStatesException, EndUnreachableException
 from .statename import StateNames
@@ -91,6 +91,9 @@ class NFAAsDFA(object):
             reached_destination = lambda: state == self.end_state
         else:
             reached_destination = lambda: self.end_state.issubset(state)
+
+        print2e('Start state:', ', '.join(self.start_state))
+        print2e()
 
         if self.start_state == self.end_state:
             return ()
