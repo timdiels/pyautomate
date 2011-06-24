@@ -55,7 +55,7 @@ class State(object):
         return frozenset.union(frozenset(), *self._transitions.values())
 
     @property
-    def alphabet(self):
+    def symbols(self):
         '''returns symbols known to this state'''
         return frozenset(self._transitions.keys())
 

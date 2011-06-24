@@ -26,7 +26,7 @@ class NFA(object):
     def __init__(self, states, raw_start_states, raw_end_states):
         self._states = states
 
-        self.alphabet = frozenset.union(frozenset(), *[state.alphabet 
+        self.alphabet = frozenset.union(frozenset(), *[state.symbols 
                                         for state in self._states.values()])
 
         self.start_states = StateNames(raw_start_states)
