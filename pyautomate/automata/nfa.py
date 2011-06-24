@@ -59,7 +59,7 @@ class NFAAsDFA(object):
     def transition(self, state, symbol):
         new_states = set()
 
-        for nfa_state in state:
+        for nfa_state in state | frozenset(('',)):  # '' == the nameless state
             new_states |= self._nfa.transition(nfa_state, symbol, state)
 
         return frozenset(new_states)

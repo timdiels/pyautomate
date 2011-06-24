@@ -168,6 +168,50 @@ and the server tests succeed, so we'll use a guard for that, which is specified 
 I.e. not_released will only run when the state machine's current state
 partially matches ('server passed tests', 'client passed tests')
 
+Anonymous state
+```````````````
+The anonymous state is a nameless state. The current state always contains the
+anonymous state. This allows you to use it as a starting point, e.g. you can
+rewrite the guards example as follows::
+
+  states = '''
+
+  - transitions:
+
+        - action: release()
+          to: released last version
+          guard:
+              state contains:
+                  - server passed tests
+                  - client passed tests
+
+        - action: test_client()
+          to: client passed tests
+
+  - name: server stopped
+
+    transitions:
+
+        - action: start_server()
+          to: server started
+
+  - name: server started
+
+    transitions:
+
+        - action: stop_server()
+          to: server stopped
+
+        - action: test_server()
+          to: 
+              - server started
+              - server passed tests
+
+  '''
+
+This is shorter to write and is still easy to understand.
+
+
 1.2 get_initial_state
 '''''''''''''''''''''
 pyautomate also needs a way to figure out the start state, so we have to

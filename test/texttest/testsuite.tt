@@ -17,3 +17,4 @@ guard
 
 # partial match of desired state
 partial
+nameless_state

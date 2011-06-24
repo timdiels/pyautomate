@@ -24,7 +24,7 @@ class _DummyState(object):
         self._name = name
 
     def transition(self, symbol, current_states):
-        return StateNames((self._name,))
+        return StateNames((self._name,)) if self._name else frozenset()
 
 class StateDict(defaultdict):
 

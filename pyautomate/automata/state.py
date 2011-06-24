@@ -31,8 +31,13 @@ class State(object):
     '''A regular NFA/DFA state'''
 
     def __init__(self, raw):
-        self._name = StateName(raw['name'])
-        self._transitions = _TransitionDict(lambda: frozenset((self._name,)))
+        if 'name' in raw:
+            self._name = StateName(raw['name'])
+            self._transitions = _TransitionDict(lambda: frozenset((self._name,)))
+        else:
+            self._name = ''
+            self._transitions = _TransitionDict(lambda: frozenset())
+
         for raw_transition in raw['transitions']:
             target = raw_transition['to']
             if not isinstance(target, list):

@@ -1,0 +1,20 @@
+usage: auto [-h] [--file AUTO_PATH] [--exact] [--verbosity V] [--version]
+            S [S ...]
+
+Automation tool
+
+positional arguments:
+  S                     a state to reach
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --file AUTO_PATH, -f AUTO_PATH
+                        the pyautomate config file (default: ./auto.py)
+  --exact, -e           when specified desired state must be matched exactly
+                        (default: partial match)
+  --verbosity V, -v V   verbosity of output. 0 for no output, 1 for listing
+                        actions, 2 for listing state switches and actions
+                        (default: 1)
+  --version             show program's version number and exit
+
+For more information see TODO github link readme
