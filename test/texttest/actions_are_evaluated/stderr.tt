@@ -1,8 +1,10 @@
 Failed to execute action: start_server()
 Traceback (most recent call last):
-  File "/home/limyreth/pyautomate/pyautomate/main.py", line 140, in <module>
-    execute_path(config, dfa, options.exact)
-  File "/home/limyreth/pyautomate/pyautomate/main.py", line 120, in execute_path
+  File "/home/limyreth/pyautomate/pyautomate/main.py", line 19, in <module>
+    application.run()
+  File "/home/limyreth/pyautomate/pyautomate/application.py", line 28, in run
+    self.execute_path(config, dfa, options.exact)
+  File "/home/limyreth/pyautomate/pyautomate/application.py", line 137, in execute_path
     eval(action, vars(config))
   File "<string>", line 1, in <module>
 NameError: name 'start_server' is not defined
