@@ -11,7 +11,8 @@
 
   <group license="OSI Approved :: GNU General Public License (GPL)">
 
-    <requires interface="http://limyreth.sin.khk.be/feeds/pyyaml.xml"/>
+    <requires interface="http://gfxmonk.net/dist/0install/pyyaml-python3.xml"/>
+    <!--<requires interface="http://limyreth.sin.khk.be/feeds/pyyaml.xml"/>-->
 
     <environment insert="test/texttest" name="TEXTTEST_HOME" mode="replace" />
     <environment insert="" name="PYTHONPATH"/>
