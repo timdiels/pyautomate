@@ -218,10 +218,17 @@ pyautomate also needs a way to figure out the start state, so we have to
 provide it with a get_initial_state function::
 
   def get_initial_state():
-      # omitted code to figure out if server is stopped/started
+      # omitted code that finds out whether server is stopped/started
       return ('server stopped',)
 
-This function returns a tuple with the state in which the system starts.
+This function returns a tuple of states in which the system starts (remember
+that the state machine can be in multiple states at the same time).
+
+When returning a single state, you may also return a string::
+
+  def get_initial_state():
+      # omitted code that finds out whether server is stopped/started
+      return 'server stopped'
 
 1.3 implement the actions
 '''''''''''''''''''''''''

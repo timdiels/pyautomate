@@ -1,0 +1,3 @@
+usage: auto [-h] [--file AUTO_PATH] [--exact] [--verbosity V] [--version]
+            S [S ...]
+auto: error: get_initial_state must return a str or a tuple of states, got: 2
