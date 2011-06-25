@@ -42,3 +42,6 @@ def init(verbosity):
     global printd
     printd = print if verbosity >= 3 else noop
 
+    global level
+    level = verbosity
+

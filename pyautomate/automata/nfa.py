@@ -16,7 +16,7 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyautomate.priodict import priorityDictionary
-from pyautomate.verbosity import printd, print2e
+from pyautomate.verbosity import printd, print2e, level as verbosity_level
 
 from . import UnknownStatesException, EndUnreachableException
 from .statename import StateNames
@@ -86,7 +86,13 @@ class NFAAsDFA(object):
         exact: whether the end state should be matched partially or exactly
         weights: {symbol : weight}
         '''
-        printd('exact', exact)
+        if verbosity_level == 3:
+            printd('weights:', weights)
+            printd('default weight:', weights[None])
+            del weights[None]
+            printd()
+
+        printd('exact:', exact)
         if exact:
             reached_destination = lambda: state == self.end_state
         else:
@@ -122,7 +128,7 @@ class NFAAsDFA(object):
                 if neighbour == state:
                     continue
                 printd('{0}: {1}'.format(symbol, neighbour))
-                path_distance = final_distances[state] + weights[neighbour]
+                path_distance = final_distances[state] + weights[symbol]
                 if neighbour in final_distances:
                     if path_distance < final_distances[neighbour]:
                         raise ValueError("Dijkstra: found better path to already-final vertex")
