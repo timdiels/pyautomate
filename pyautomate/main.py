@@ -74,16 +74,23 @@ def make_dfa(config, desired_state):
         state = GuardedState(raw_state)
         states[state.name] = state
 
+    start_state = config.get_initial_state()
+    if isinstance(start_state, str):
+        start_state = (start_state,)
+    elif not isinstance(start_state, tuple):
+        parser.error('get_initial_state must return a str or a tuple of ' + \
+                     'states, got: {0}'.format(start_state))
+
     try:
         nfa = NFA(states=states,
-                  raw_start_states=config.get_initial_state(),
+                  raw_start_states=start_state,
                   raw_end_states=desired_state)
     except UnknownStatesException as ex:
         parser.error('Unknown state(s) in desired state: {0}'.format(
                         ', '.join(ex.states)))
     return NFAAsDFA(nfa)
 
-def execute_path(dfa, exact):
+def execute_path(config, dfa, exact):
     from pyautomate.automata import EndUnreachableException
     import sys
 
@@ -130,5 +137,5 @@ from pyautomate.verbosity import print1, print1e, print2, print2e
 
 config = load_auto_file(options.auto_path)
 dfa = make_dfa(config, options.desired_state)
-execute_path(dfa, options.exact)
+execute_path(config, dfa, options.exact)
 

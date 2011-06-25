@@ -1,10 +1,10 @@
 Failed to execute action: test_server()
 Traceback (most recent call last):
-  File "/home/limyreth/pyautomate/pyautomate/main.py", line 133, in <module>
-    execute_path(dfa, options.exact)
-  File "/home/limyreth/pyautomate/pyautomate/main.py", line 113, in execute_path
+  File "/home/limyreth/pyautomate/pyautomate/main.py", line 140, in <module>
+    execute_path(config, dfa, options.exact)
+  File "/home/limyreth/pyautomate/pyautomate/main.py", line 120, in execute_path
     eval(action, vars(config))
   File "<string>", line 1, in <module>
-  File "/home/limyreth/.texttest/tmp/tt.24Jun213708.4710/tt/stop_at_first_failed_action/auto.py", line 34, in test_server
+  File "/home/limyreth/.texttest/tmp/tt.25Jun113343.4461/tt/stop_at_first_failed_action/auto.py", line 34, in test_server
     print(this_will_stop_execution)
 NameError: global name 'this_will_stop_execution' is not defined

@@ -1,20 +1,30 @@
-missing_auto
-help
+no_automaton
+
+# for very simple state unrelated tests
+2state_automaton
+
+# missing_auto (automatically commented due to no test directory being found)
+
+# help (automatically commented due to no test directory being found)
+
 
 # weightless
 # basic server
-basic
+multistate_automaton
+
+# state_machine's states may use '_' instead of ' '
+# underscore_in_auto_file (automatically commented due to no test directory being found)
+
+# version (automatically commented due to no test directory being found)
+
+# exact (automatically commented due to no test directory being found)
+
+
+# partial match of desired state
+guarded_automaton
+anonymous_state
 file_param
 
 # Make sure actions are actually called by leaving out a python function hoping it fails to find it... i.e. it tried to call it
 actions_are_evaluated
 stop_at_first_failed_action
-
-# state_machine's states may use '_' instead of ' '
-underscore_in_auto_file
-version
-guard
-
-# partial match of desired state
-partial
-nameless_state
