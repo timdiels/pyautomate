@@ -294,8 +294,8 @@ auto.py helper functions
 This lists functions that aid in writing auto.py functions: checking if a file
 has changed, ...
 
-pyautomate.persisted and pyautomate.has_changed
------------------------------------------------
+Persisting data between runs
+----------------------------
 If you need to save data between pyautomate runs, you can use
 pyautomate.persisted like so::
 
@@ -307,13 +307,56 @@ pyautomate.persisted like so::
 Keys mustn't start with '#', these are reserved for pyautomate. The data is
 saved in .pyautomate in the same directory as the auto.py file.
 
-A common use case is to check if a saved value has changed since the last run::
+Tracking changes
+----------------
+
+General changes
+'''''''''''''''
+For tracking changes in general, you can use the `persisted dictionary`__. A
+convenience method is offered to check if a new value is different from the one
+stored in the dictionary::
 
   from pyautomate import has_changed
 
   def get_initial_state():
       last_released = not has_changed('last released version', get_version())
       return 'released last' if last_released else 'not released last'
+
+Filesystem changes
+''''''''''''''''''
+has_file_changed and make_file_current allow you to easily keep track of
+changes to files and directories. Note that *file* can be a directory as well.
+
+Usage example: compiling only when source changes::
+
+  from pyautomate import has_file_changed, make_file_current
+
+  def get_initial_state():
+      source_changed = has_file_changed('source_dir')
+      if source_changed:
+          return 'binaries out of date' 
+      else:
+          return 'binaries up to date'
+
+  def compile():
+      #... do compiling
+      mark_file_current('source_dir')
+
+There are times where you want to check that a group of files/directories
+exist, you can use files_exist for this purpose.
+
+For example, let's improve the above example by compiling not only when the
+source changes, but also when the binaries are missing::
+
+  from pyautomate import has_file_changed, make_file_current
+  from pyautomate import files_exist
+
+  def get_initial_state():
+      source_changed = has_file_changed('source_dir')
+      if source_changed or not files_exist(targets):
+          return 'binaries out of date' 
+      else:
+          return 'binaries up to date'
 
 
 More examples
