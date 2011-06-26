@@ -4,9 +4,6 @@
   <name>pyautomate</name>
   <summary>python automation tool</summary>
 
-  <!--<homepage></homepage>-->
-  <!--<icon href=".png" type="image/png"/>-->
-
   <feed-for interface="http://limyreth.sin.khk.be/feeds/pyautomate.xml"/>
 
   <group license="OSI Approved :: GNU General Public License (GPL)">
@@ -32,7 +29,7 @@
       </runner>
     </command>
 
-    <implementation id="." version="0.1-post"/>
+    <implementation id="." version="0.2-post"/>
 
   </group>
 </interface>

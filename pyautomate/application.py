@@ -29,7 +29,7 @@ from .data import Data
 class Application(object):
 
     def __init__(self):
-        self.version = '0.1-post'
+        self.version = '0.2'
 
     def run(self):
         options = self._parse_args()
