@@ -322,6 +322,8 @@ stored in the dictionary::
       last_released = not has_changed('last released version', get_version())
       return 'released last' if last_released else 'not released last'
 
+__ `persisting data between runs`_
+
 Filesystem changes
 ''''''''''''''''''
 has_file_changed and make_file_current allow you to easily keep track of
