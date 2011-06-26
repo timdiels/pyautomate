@@ -23,7 +23,8 @@ import yaml
 from argparse import ArgumentParser
 from importlib import import_module
 from collections import defaultdict
-from copy import deepcopy
+
+from .data import Data
 
 class Application(object):
 
@@ -70,7 +71,7 @@ class Application(object):
             self.parser.error('Could not find auto file at: %s' % auto_path)
         os.chdir(auto_dir)
 
-        self._load_data_file()
+        self._data = Data()
         self._config = self._load_auto_file(auto_dir, auto_file)
 
     def _load_auto_file(self, auto_dir, auto_file):
@@ -89,27 +90,6 @@ class Application(object):
 
         return config
 
-    def _load_data_file(self):
-        try:
-            with open(os.path.abspath('.pyautomate'), 'r') as f:
-                self._data = yaml.load(f)
-        except IOError:
-            self._data = {
-                'last_state' : {}
-            }
-
-        self._committed_data = deepcopy(self._data)
-
-        import pyautomate
-        pyautomate.persisted = self.persisted_data
-
-    def _save_data(self):
-        with open(os.path.abspath('.pyautomate'), 'w') as f:
-            yaml.dump(self._committed_data, f)
-
-    def _commit_data(self):
-        self._committed_data['last_state'] = self._data['last_state'].copy()
-
     def _make_dfa(self, desired_state):
         from pyautomate.automata import (
             GuardedState, StateDict, NFA, NFAAsDFA, UnknownStatesException
@@ -125,7 +105,7 @@ class Application(object):
             states[state.name] = state
 
         start_state = self._config.get_initial_state()
-        self._commit_data()
+        self._data.commit()
         if isinstance(start_state, str):
             start_state = (start_state,)
         elif not isinstance(start_state, tuple):
@@ -171,7 +151,7 @@ class Application(object):
 
                 try:
                     eval(action, vars(self._config))
-                    self._commit_data()
+                    self._data.commit()
                 except:
                     print('Failed to execute action:', action, file=sys.stderr)
                     raise
@@ -182,7 +162,7 @@ class Application(object):
             ))
             self.parser.exit(1)
         finally:
-            self._save_data()
+            self._data.save()
 
 
 application = Application()
