@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
-from .dirty import has_changed, has_file_changed, mark_file_current
-from .helpers import files_exist
+import os.path
 
+def files_exist(*files):
+    for file in files:
+        if not os.path.exists(file):
+            return False
+    return True

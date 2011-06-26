@@ -353,15 +353,14 @@ source changes, but also when the binaries are missing::
 
   def get_initial_state():
       source_changed = has_file_changed('source_dir')
-      if source_changed or not files_exist(targets):
+      if source_changed or not files_exist(*targets):
           return 'binaries out of date' 
       else:
           return 'binaries up to date'
 
 
-More examples
-=============
-None, currently.
+.. More examples
+.. =============
 
 .. TODO: refer to other projects where we use pyautomate. Point directly to its
       page and its auto file

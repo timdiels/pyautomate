@@ -11,6 +11,8 @@ full_name:pyautomate
 # most tests need this
 link_test_path:auto.py
 link_test_path:file.f
+link_test_path:file1.f
+link_test_path:file2.f
 link_test_path:directory.f
 copy_test_path:.pyautomate
 
