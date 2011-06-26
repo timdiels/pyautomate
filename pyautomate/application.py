@@ -40,7 +40,9 @@ class Application(object):
 
     @property
     def persisted_data(self):
-        '''Keys starting with '#' are reserved and should not be used'''
+        '''Dictionary that is persisted between runs.
+        
+        Keys starting with '#' are reserved and should not be used'''
         return self._data['last_state']
 
     def _init_verbosity(self, level):

@@ -288,6 +288,34 @@ Some examples::
   # if you really do want an exact match, you can specify --exact to force this
   auto --exact server_passed_tests server_stopped
 
+auto.py helper functions
+========================
+
+This lists functions that aid in writing auto.py functions: checking if a file
+has changed, ...
+
+pyautomate.persisted and pyautomate.has_changed
+-----------------------------------------------
+If you need to save data between pyautomate runs, you can use
+pyautomate.persisted like so::
+
+  from pyautomate import persisted
+
+  def release():
+      persisted['last released version'] = get_version()
+
+Keys mustn't start with '#', these are reserved for pyautomate. The data is
+saved in .pyautomate in the same directory as the auto.py file.
+
+A common use case is to check if a saved value has changed since the last run::
+
+  from pyautomate import has_changed
+
+  def get_initial_state():
+      last_released = not has_changed('last released version', get_version())
+      return 'released last' if last_released else 'not released last'
+
+
 More examples
 =============
 None, currently.
