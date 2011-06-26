@@ -358,6 +358,21 @@ source changes, but also when the binaries are missing::
       else:
           return 'binaries up to date'
 
+Subprocesses and shell commands
+-------------------------------
+When calling other programs or shell commands you may be tempted to use
+os.system or the like, but you `shouldn't`__. In fact, the most convenient way
+to call other applications and shell commands is using
+`subprocess.check_call`__::
+
+    subprocess.check_call(["ls", "-l"])
+
+check_call will throw an exception when the subprocess' return code is not 0,
+this allows pyautomate to detect that the action has failed so that it can stop
+execution.
+
+__ http://docs.python.org/library/subprocess.html#subprocess-replacements
+__ http://docs.python.org/library/subprocess.html#subprocess.check_call
 
 .. More examples
 .. =============
