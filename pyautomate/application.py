@@ -23,6 +23,7 @@ import yaml
 from argparse import ArgumentParser
 from importlib import import_module
 from collections import defaultdict
+from copy import deepcopy
 
 class Application(object):
 
@@ -97,7 +98,7 @@ class Application(object):
                 'last_state' : {}
             }
 
-        self._commit_data()
+        self._committed_data = deepcopy(self._data)
 
         import pyautomate
         pyautomate.persisted = self.persisted_data
@@ -107,7 +108,7 @@ class Application(object):
             yaml.dump(self._committed_data, f)
 
     def _commit_data(self):
-        self._committed_data = self._data.copy()
+        self._committed_data['last_state'] = self._data['last_state'].copy()
 
     def _make_dfa(self, desired_state):
         from pyautomate.automata import (
@@ -124,6 +125,7 @@ class Application(object):
             states[state.name] = state
 
         start_state = self._config.get_initial_state()
+        self._commit_data()
         if isinstance(start_state, str):
             start_state = (start_state,)
         elif not isinstance(start_state, tuple):
