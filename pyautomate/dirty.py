@@ -16,5 +16,7 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyautomate.application import application
-application.run()
 
+def has_changed(key, value):
+    '''checks if given value is different from persisted[key]'''
+    return key not in application.persisted_data or application.persisted_data[key] != value

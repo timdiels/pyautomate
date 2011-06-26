@@ -38,7 +38,7 @@ class NFA(object):
 
     @property
     def state_names(self):
-        return frozenset.union(frozenset(), *[state.state_names 
+        return frozenset.union(self.start_states, *[state.state_names 
                                for state in self._states.values()])
 
     def transition(self, state_name, symbol, current_states):

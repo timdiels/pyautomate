@@ -15,24 +15,36 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
+import os.path
+import pyautomate.verbosity
+import sys
+import yaml
+
+from argparse import ArgumentParser
+from importlib import import_module
+from collections import defaultdict
+
 class Application(object):
 
     def __init__(self):
         self.version = '0.1-post'
 
     def run(self):
-        options = self.parse_args()
-        self.init_verbosity(options.verbosity)
-        config = self.load_auto_file(options.auto_path)
-        dfa = self.make_dfa(config, options.desired_state)
-        self.execute_path(config, dfa, options.exact)
+        options = self._parse_args()
+        self._init_verbosity(options.verbosity)
+        self._load_files(options.auto_path)
+        dfa = self._make_dfa(options.desired_state)
+        self._execute_path(dfa, options.exact)
 
-    def init_verbosity(self, level):
-        import pyautomate.verbosity
+    @property
+    def persisted_data(self):
+        '''Keys starting with '#' are reserved and should not be used'''
+        return self._data['last_state']
+
+    def _init_verbosity(self, level):
         pyautomate.verbosity.init(level)
 
-    def parse_args(self):
-        from argparse import ArgumentParser
+    def _parse_args(self):
         self.parser = ArgumentParser(description='Automation tool', prog='auto',
                     epilog='For more information see TODO github link readme')
         self.parser.add_argument('desired_state', metavar='S', nargs='+', 
@@ -50,25 +62,24 @@ class Application(object):
                         version='%(prog)s ' + self.version)
         return self.parser.parse_args()
 
-    def load_auto_file(self, auto_path):
-        from importlib import import_module
-        from collections import defaultdict
-        import os.path
-        import sys
-
+    def _load_files(self, auto_path):
         auto_path = os.path.abspath(auto_path)
         auto_dir, auto_file = os.path.split(auto_path)
-
-        # allow importing
-        sys.path.insert(0, auto_dir)
-
-        # set it as working dir as this allows easier auto files
+        if not os.path.exists(auto_path):
+            self.parser.error('Could not find auto file at: %s' % auto_path)
         os.chdir(auto_dir)
+
+        self._load_data_file()
+        self._config = self._load_auto_file(auto_dir, auto_file)
+
+    def _load_auto_file(self, auto_dir, auto_file):
+        sys.path.insert(0, auto_dir)  # allow importing
+
         auto_module_name = os.path.splitext(auto_file)[0]
         try:
             config = import_module(auto_module_name)
-        except ImportError:
-            self.parser.error('Could not find auto file at: %s' % auto_path)
+        except ImportError as ex:
+            self.parser.error('Failed to import auto file: %s' % ex)
 
         weights = defaultdict(lambda: 1000)
         if hasattr(config, 'weights'):
@@ -77,18 +88,42 @@ class Application(object):
 
         return config
 
-    def make_dfa(self, config, desired_state):
-        from pyautomate.automata import GuardedState, StateDict, NFA, NFAAsDFA, \
-            UnknownStatesException
-        import yaml
+    def _load_data_file(self):
+        try:
+            with open(os.path.abspath('.pyautomate'), 'r') as f:
+                self._data = yaml.load(f)
+        except IOError:
+            self._data = {
+                'last_state' : {}
+            }
 
-        raw_states = yaml.load(config.states)
+        self._commit_data()
+
+        import pyautomate
+        pyautomate.persisted = self.persisted_data
+
+    def _save_data(self):
+        with open(os.path.abspath('.pyautomate'), 'w') as f:
+            yaml.dump(self._committed_data, f)
+
+    def _commit_data(self):
+        self._committed_data = self._data.copy()
+
+    def _make_dfa(self, desired_state):
+        from pyautomate.automata import (
+            GuardedState, StateDict, NFA, NFAAsDFA, UnknownStatesException
+        )
+
+        raw_states = yaml.load(self._config.states)
+        if not raw_states:
+            raw_states = {}
+
         states = StateDict()
         for raw_state in raw_states:
             state = GuardedState(raw_state)
             states[state.name] = state
 
-        start_state = config.get_initial_state()
+        start_state = self._config.get_initial_state()
         if isinstance(start_state, str):
             start_state = (start_state,)
         elif not isinstance(start_state, tuple):
@@ -104,15 +139,14 @@ class Application(object):
                             ', '.join(ex.states)))
         return NFAAsDFA(nfa)
 
-    def execute_path(self, config, dfa, exact):
+    def _execute_path(self, dfa, exact):
         from pyautomate.automata import EndUnreachableException
-        import sys
         from pyautomate.verbosity import (
             print1, print1e, print2, print2e, level as verbosity_level
         )
 
         try:
-            for from_, action, to in dfa.get_shortest_path(exact, config.weights):
+            for from_, action, to in dfa.get_shortest_path(exact, self._config.weights):
 
                 print1e(action)
 
@@ -134,7 +168,8 @@ class Application(object):
                     print()
 
                 try:
-                    eval(action, vars(config))
+                    eval(action, vars(self._config))
+                    self._commit_data()
                 except:
                     print('Failed to execute action:', action, file=sys.stderr)
                     raise
@@ -144,6 +179,8 @@ class Application(object):
                 ', '.join(dfa.end_state), ', '.join(dfa.start_state)
             ))
             self.parser.exit(1)
+        finally:
+            self._save_data()
 
 
 application = Application()

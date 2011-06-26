@@ -23,6 +23,7 @@ multistate_automaton
 # partial match of desired state
 guarded_automaton
 weighed_automaton
+stateless_automaton
 anonymous_state
 file_param
 
