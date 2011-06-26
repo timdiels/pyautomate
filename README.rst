@@ -325,11 +325,8 @@ None, currently.
 
 Features in upcoming releases
 =============================
-A GUI tool or a reader of UML state diagram files will be added to allow
-specifying state machines more easily.
-
-Partial desired state, rather than requiring a full state.
-
+Reading in the state machine from a UML state diagram file (so you can use an
+UML tool to draw it rather than having to specify YAML).
 
 .. _YAML: http://en.wikipedia.org/wiki/YAML
 .. _state machine: `pyautomate's state machine`_

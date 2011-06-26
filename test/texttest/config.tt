@@ -10,6 +10,7 @@ full_name:pyautomate
 
 # most tests need this
 link_test_path:auto.py
+link_test_path:file.f
 copy_test_path:.pyautomate
 
 # http://texttest.carmen.se/index.php?page=documentation_3_21&n=run_dependent_text#run_dependent_text

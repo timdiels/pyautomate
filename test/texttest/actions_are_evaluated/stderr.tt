@@ -4,7 +4,7 @@ Traceback (most recent call last):
     application.run()
   File "/home/limyreth/pyautomate/pyautomate/application.py", line 39, in run
     self._execute_path(dfa, options.exact)
-  File "/home/limyreth/pyautomate/pyautomate/application.py", line 153, in _execute_path
+  File "/home/limyreth/pyautomate/pyautomate/application.py", line 155, in _execute_path
     eval(action, vars(self._config))
   File "<string>", line 1, in <module>
 NameError: name 'start_server' is not defined

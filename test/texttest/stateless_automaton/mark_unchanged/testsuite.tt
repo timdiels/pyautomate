@@ -1,0 +1,4 @@
+# Ordered list of tests in test suite. Add as appropriate
+
+basic
+does_not_rm_other_keys
