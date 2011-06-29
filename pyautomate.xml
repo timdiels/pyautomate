@@ -29,7 +29,7 @@
       </runner>
     </command>
 
-    <implementation id="." version="0.2-post"/>
+    <implementation id="." version="0.3-post"/>
 
   </group>
 </interface>
