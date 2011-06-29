@@ -1,8 +1,9 @@
-from pyautomate import mark_file_current
+from pyautomate import trackers, hash_
 
 states = ''
 
 def get_initial_state():
-    mark_file_current('directory.f')
+    trackers['last compiled'] = lambda: hash_('directory.f')
+    trackers['last compiled'].make_current()
     return 'state'
 

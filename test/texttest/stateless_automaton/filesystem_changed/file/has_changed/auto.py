@@ -1,8 +1,9 @@
-from pyautomate import has_file_changed
+from pyautomate import trackers, hash_
 
 states = ''
 
 def get_initial_state():
-    print(has_file_changed('file.f'))
+    trackers['last compiled'] = lambda: hash_('file.f')
+    print(trackers['last compiled'].has_changed)
     return 'state'
 

@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
-from .dirty import has_changed, has_file_changed, mark_file_current
+from .hash import hash as hash_
+from .trackers import trackers, has_changed
 from .helpers import files_exist
 
