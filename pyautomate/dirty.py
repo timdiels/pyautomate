@@ -15,12 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
-import os.path
-from os.path import abspath
 
 from pyautomate.application import application
-from pyautomate.digest import md5
-from pyautomate.manifest import manifest_digest
+from pyautomate.digest import hash
 
 def has_changed(key, value):
     '''
@@ -32,7 +29,7 @@ def has_file_changed(path):
     '''
     checks path to file/directory for changes, see also mark_file_current.
     '''
-    return has_changed('#' + path, _digest(path))
+    return has_changed('#' + path, hash(path))
 
 def mark_file_current(path):
     '''
@@ -43,14 +40,6 @@ def mark_file_current(path):
 
     path: path to directory or file.
     '''
-    application.persisted_data['#' + path] = _digest(path)
+    application.persisted_data['#' + path] = hash(path)
 
-def _digest(path):
-    path = abspath(path)
-    if not os.path.exists(path):
-        return None
-    elif os.path.isdir(path):
-        return manifest_digest(path)
-    else:
-        return md5(path)
 
