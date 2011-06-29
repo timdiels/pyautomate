@@ -16,6 +16,6 @@
 # along with pyautomate.  If not, see <http://www.gnu.org/licenses/>.
 
 from .hash import hash_
-from .trackers import trackers, has_changed
+from .trackers import trackers
 from .helpers import files_exist
 
