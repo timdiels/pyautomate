@@ -18,7 +18,4 @@
 import os.path
 
 def files_exist(*files):
-    for file in files:
-        if not os.path.exists(file):
-            return False
-    return True
+    return all(map(os.path.exists, files))
