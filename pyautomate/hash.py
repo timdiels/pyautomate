@@ -20,7 +20,7 @@ import os.path
 from pyautomate.manifest import generate_manifest
 from pyautomate.helpers import files_exist
 
-def hash(*files, alg_name='sha256'):
+def hash_(*files, alg_name='sha256'):
     alg = getattr(hashlib, alg_name)
     if not files or not files_exist(*files):
         return None
