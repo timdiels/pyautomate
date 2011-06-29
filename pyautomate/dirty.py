@@ -17,7 +17,7 @@
 
 
 from pyautomate.application import application
-from pyautomate.digest import hash
+from pyautomate.hash import hash
 
 def has_changed(key, value):
     '''

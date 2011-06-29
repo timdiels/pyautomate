@@ -56,4 +56,4 @@ def generate_manifest(root, alg):
 
     for x in recurse('/'): yield x
 
-from digest import hash_file
+from hash import hash_file

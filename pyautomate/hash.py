@@ -17,7 +17,6 @@
 
 import hashlib
 import os.path
-from os.path import abspath
 from pyautomate.manifest import generate_manifest
 from pyautomate.helpers import files_exist
 
@@ -37,7 +36,6 @@ def hash(*files, alg_name='sha256'):
 
 def hash_one(path, alg):
     # Note: path must exist
-    path = abspath(path)
     if os.path.isdir(path):
         return hash_directory(path, alg)
     else:
@@ -45,15 +43,18 @@ def hash_one(path, alg):
 
 def hash_file(path, alg):
     block_size = 128 * 63
-    digest = alg()
     with open(path,'rb') as f: 
-        for chunk in iter(lambda: f.read(block_size), b''): 
-             digest.update(chunk)
-    return digest.hexdigest()
+        chunks = iter(lambda: f.read(block_size), b'')
+        return hash_iterable(chunks, alg)
 
 def hash_directory(path, alg):
+    lines = ((line + '\n').encode('UTF-8') 
+            for line in generate_manifest(path, alg))
+    return hash_iterable(lines, alg)
+
+def hash_iterable(iterable, alg):
     digest = alg()
-    for line in generate_manifest(path, alg):
-        digest.update((line + '\n').encode('UTF-8'))
+    for chunk in iterable:
+        digest.update(chunk)
     return digest.hexdigest()
 
