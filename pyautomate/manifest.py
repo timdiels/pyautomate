@@ -30,7 +30,7 @@ def generate_manifest(root, alg):
             m = info.st_mode
 
             if stat.S_ISREG(m):
-                d = hash_file(path, alg)
+                d = hash_file(path, alg).hexdigest()
                 if m & 0o111:
                     yield "X %s %s %s" % (d, info.st_size, item)
                 else:

@@ -26,11 +26,11 @@ def hash_(*files, alg_name='sha256'):
         return None
 
     if len(files) == 1:
-        digest = hash_one(files[0], alg)
+        digest = hash_one(files[0], alg).hexdigest()
     else:
         digest = alg()
         for file in files:
-            digest.update(hash_one(file, alg))
+            digest.update(hash_one(file, alg).digest())
         digest = digest.hexdigest()
     return alg_name + '=' + digest
 
@@ -56,5 +56,5 @@ def hash_iterable(iterable, alg):
     digest = alg()
     for chunk in iterable:
         digest.update(chunk)
-    return digest.hexdigest()
+    return digest
 
