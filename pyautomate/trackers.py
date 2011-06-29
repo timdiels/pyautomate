@@ -38,7 +38,7 @@ class _Tracker(object):
     def _key(self):
         return '#tracker: ' + self.__key
 
-    def make_current(self):
+    def save(self):
         application.persisted_data[self._key] = self._get_value()
 
     @property
