@@ -19,40 +19,41 @@ import hashlib
 import os.path
 from os.path import abspath
 from pyautomate.manifest import generate_manifest
+from pyautomate.helpers import files_exist
 
-def digest(file_path, alg):
-    block_size = 128 * 63
-    alg = alg()
-    with open(file_path,'rb') as f: 
-        for chunk in iter(lambda: f.read(block_size), b''): 
-             alg.update(chunk)
-    return alg.hexdigest()
-
-def md5(file_path):
-    '''return md5 digest of file'''
-    return digest(file_path, hashlib.md5)
-
-def hash_file(path):
-    path = abspath(path)
-    if not os.path.exists(path):
+def hash(*files, alg_name='sha256'):
+    alg = getattr(hashlib, alg_name)
+    if not files or not files_exist(*files):
         return None
-    elif os.path.isdir(path):
-        return hash_directory(path)
-    else:
-        return md5(path)
 
-def hash(*files):
     if len(files) == 1:
-        return hash_file(files[0])
+        digest = hash_one(files[0], alg)
+    else:
+        digest = alg()
+        for file in files:
+            digest.update(hash_one(file, alg))
+        digest = digest.hexdigest()
+    return alg_name + '=' + digest
 
-    alg = hashlib.md5()
-    for file in files:
-        alg.update(hash_file(file))
-    return alg.hexdigest()
+def hash_one(path, alg):
+    # Note: path must exist
+    path = abspath(path)
+    if os.path.isdir(path):
+        return hash_directory(path, alg)
+    else:
+        return hash_file(path, alg)
 
-def hash_directory(dir):
-    alg = hashlib.sha256()
-    for line in generate_manifest(dir):
-        alg.update((line + '\n').encode('UTF-8'))
-    return alg.hexdigest()
+def hash_file(path, alg):
+    block_size = 128 * 63
+    digest = alg()
+    with open(path,'rb') as f: 
+        for chunk in iter(lambda: f.read(block_size), b''): 
+             digest.update(chunk)
+    return digest.hexdigest()
+
+def hash_directory(path, alg):
+    digest = alg()
+    for line in generate_manifest(path, alg):
+        digest.update((line + '\n').encode('UTF-8'))
+    return digest.hexdigest()
 

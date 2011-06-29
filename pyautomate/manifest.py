@@ -2,9 +2,8 @@
 # http://0install.net/2007/interfaces/ZeroInstall.xml
 
 import os, stat
-import hashlib
 
-def generate_manifest(root):
+def generate_manifest(root, alg):
     def recurse(subdir):
         # To ensure that a line-by-line comparison of the manifests
         # is possible, we require that filenames don't contain newlines.
@@ -30,17 +29,15 @@ def generate_manifest(root):
             info = os.lstat(path)
             m = info.st_mode
 
-            new_digest = hashlib.sha256
-
             if stat.S_ISREG(m):
-                d = digest(path, new_digest)
+                d = hash_file(path, alg)
                 if m & 0o111:
                     yield "X %s %s %s" % (d, info.st_size, item)
                 else:
                     yield "F %s %s %s" % (d, info.st_size, item)
             elif stat.S_ISLNK(m):
                 target = os.readlink(path)
-                d = new_digest(target).hexdigest()
+                d = alg(target).hexdigest()
                 # Note: Can't use utime on symlinks, so skip mtime
                 # Note: eCryptfs may report length as zero, so count ourselves instead
                 yield "S %s %s %s" % (d, len(target), item)
@@ -59,4 +56,4 @@ def generate_manifest(root):
 
     for x in recurse('/'): yield x
 
-from digest import digest
+from digest import hash_file
