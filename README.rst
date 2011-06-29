@@ -43,6 +43,10 @@ as current state, the machine will switch to both 'server started' and 'server
 passed tests'. After that, it can still make a transition to 'server stopped'
 and 'server passed tests' by executing 'stop_server()'.
 
+The state machine can make its transitions conditional with `guards`_. There's
+a special state called the `anonymous state`_, the state machine is always in
+the anonymous state.
+
 Usage
 =====
 If you're not familiar with state machines, you should read `the above`__ first.
@@ -230,6 +234,13 @@ When returning a single state, you may also return a string::
       # omitted code that finds out whether server is stopped/started
       return 'server stopped'
 
+Note that when using the `anonymous state`_, you can return an empty tuple.
+This way the machine starts in the anonymous state::
+
+  def get_initial_state():
+      return ()
+
+
 1.3 implement the actions
 '''''''''''''''''''''''''
 Now we'll define functions for anything we used as an action::
@@ -288,77 +299,85 @@ Some examples::
   # if you really do want an exact match, you can specify --exact to force this
   auto --exact server_passed_tests server_stopped
 
-auto.py helper functions
-========================
+auto.py helpers
+===============
 
-This lists functions that aid in writing auto.py functions: checking if a file
-has changed, ...
+This section documents functions that will help you write auto.py files.
 
-Persisting data between runs
-----------------------------
-If you need to save data between pyautomate runs, you can use
-pyautomate.persisted like so::
-
-  from pyautomate import persisted
-
-  def release():
-      persisted['last released version'] = get_version()
-
-Keys mustn't start with '#', these are reserved for pyautomate. The data is
-saved in .pyautomate in the same directory as the auto.py file.
 
 Tracking changes
 ----------------
 
-General changes
-'''''''''''''''
-For tracking changes in general, you can use the `persisted dictionary`__. A
-convenience method is offered to check if a new value is different from the one
-stored in the dictionary::
+You'll often want to track changes to your environment in order to find out in
+which state the machine currently is.
 
-  from pyautomate import has_changed
+For example, you might want to know whether or not the current version has been
+released or not. pyautomate provides you with the trackers dict-like object for
+this purpose::
 
-  def get_initial_state():
-      last_released = not has_changed('last released version', get_version())
-      return 'released last' if last_released else 'not released last'
+  from pyautomate import trackers
 
-__ `persisting data between runs`_
-
-Filesystem changes
-''''''''''''''''''
-has_file_changed and make_file_current allow you to easily keep track of
-changes to files and directories. Note that *file* can be a directory as well.
-
-Usage example: compiling only when source changes::
-
-  from pyautomate import has_file_changed, make_file_current
+  trackers['last released version'] = get_version
 
   def get_initial_state():
-      source_changed = has_file_changed('source_dir')
-      if source_changed:
-          return 'binaries out of date' 
+      if trackers['last released version'].has_changed:
+          return 'not released'
       else:
-          return 'binaries up to date'
+          return 'released' 
 
-  def compile():
-      #... do compiling
-      mark_file_current('source_dir')
+  def get_version():
+      # call some git commands or ...
 
-There are times where you want to check that a group of files/directories
-exist, you can use files_exist for this purpose.
+  def release()
+      # omitted actual release code
+      trackers['last released version'].save()
 
-For example, let's improve the above example by compiling not only when the
-source changes, but also when the binaries are missing::
+You assign a callable to a key in trackers. This callable is used to get the
+current value. You store the current value with save on the tracker object
+returned by the trackers object. When you read has_changed on the tracker, it
+will compare the saved value of the tracker with the current value. Saved
+tracker values are persisted between runs.
 
-  from pyautomate import has_file_changed, make_file_current
-  from pyautomate import files_exist
+Often you'll want to track changes to files and directories, you can do this by
+combining trackers with the hash_ function::
+
+  from pyautomate import hash_, trackers
+
+  src_files = 'main.cpp folder_with_more_source'.split()
+
+  trackers['last compiled source'] = lambda: hash_(*src_files)
 
   def get_initial_state():
-      source_changed = has_file_changed('source_dir')
-      if source_changed or not files_exist(*targets):
-          return 'binaries out of date' 
-      else:
-          return 'binaries up to date'
+      if trackers['last compiled source'].has_changed:
+          return 'binaries outdated'
+      return 'binaries up to date'
+
+  def make():
+      # omitted compile commands
+      trackers['last compiled source'].save()
+
+hash_ hashes files and directories and returns the resulting (sha256) digest.
+
+The above example does not take into account missing binaries, we can fix this
+by using files_exist::
+
+  from pyautomate import files_exist, hash_, trackers
+
+  src_files = 'main.cpp folder_with_more_source'.split()
+
+  trackers['last compiled source'] = lambda: hash_(*src_files)
+
+  def get_initial_state():
+      binaries_exist = files_exist(*src_files)
+      if trackers['last compiled source'].has_changed or not binaries_exist:
+          return 'binaries outdated'
+      return 'binaries up to date'
+
+Note that files_exist takes both files and directories.
+
+For a complete example of tracking file system changes see `publishing a
+document`_.
+
 
 Subprocesses and shell commands
 -------------------------------
@@ -376,14 +395,82 @@ execution.
 __ http://docs.python.org/library/subprocess.html#subprocess-replacements
 __ http://docs.python.org/library/subprocess.html#subprocess.check_call
 
-.. More examples
-.. =============
+Persisting data between runs
+----------------------------
+If you need to save data between pyautomate runs, you can use
+pyautomate.persisted like so::
 
-.. TODO: refer to other projects where we use pyautomate. Point directly to its
-      page and its auto file
+  from pyautomate import persisted
 
-Features in upcoming releases
-=============================
+  def release():
+      persisted['key'] = value
+      print(persisted['key'])
+
+Keys mustn't start with '#', these are reserved for pyautomate. The data is
+saved in .pyautomate in the same directory as the auto.py file.
+
+More examples
+=============
+
+Publishing a document
+---------------------
+This example shows how to automate converting rst to html, and upload it
+to a server. It is clever enough to notice missing html, out of date html and
+remember if it still needs to upload.
+
+auto.py::
+
+  from subprocess import check_call
+  from pyautomate import files_exist, hash_, trackers
+
+  states = '''
+  - name: rst
+    transitions:
+      - action: make()
+        to: html
+
+  - name: html
+    transitions:
+      - action: upload()
+        to: uploaded
+  '''
+
+  files = 'browser_based productlisting'.split()
+  rst_files = [file + '.rst' for file in files]
+  html_files = [file + '.html' for file in files]
+
+  trackers['last converted rst'] = lambda: hash_(*rst_files)
+  trackers['last uploaded html'] = lambda: hash_(*html_files)
+
+  def get_initial_state():
+      html_exists = files_exist(*html_files)
+      if trackers['last converted rst'].has_changed and html_exists:
+          return 'rst'
+
+      if trackers['last uploaded html'].has_changed:
+          return 'html'
+
+      return 'uploaded'
+
+  def make():
+      for name in files:
+          check_call([
+              'rst2html', 
+              '--stylesheet=http://limyreth.sin.khk.be/files/rst/style.css ',
+              '--link-stylesheet',
+              name + '.rst',
+              name + '.html'])
+      trackers['last converted rst'].save()
+
+  def upload():
+      args = ['scp']
+      args.extend([file + '.html' for file in files])
+      args.append('sin.khk.be:public_html/')
+      check_call(args)
+      trackers['last uploaded html'].save()
+
+Planned features
+================
 Reading in the state machine from a UML state diagram file (so you can use an
 UML tool to draw it rather than having to specify YAML).
 
