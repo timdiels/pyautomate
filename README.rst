@@ -339,7 +339,7 @@ will compare the saved value of the tracker with the current value. Saved
 tracker values are persisted between runs.
 
 Often you'll want to track changes to files and directories, you can do this by
-combining trackers with the hash_ function::
+combining trackers with the hash\_ function::
 
   from pyautomate import hash_, trackers
 
@@ -356,7 +356,7 @@ combining trackers with the hash_ function::
       # omitted compile commands
       trackers['last compiled source'].save()
 
-hash_ hashes files and directories and returns the resulting (sha256) digest.
+hash\_ hashes files and directories and returns the resulting (sha256) digest.
 
 The above example does not take into account missing binaries, we can fix this
 by using files_exist::
