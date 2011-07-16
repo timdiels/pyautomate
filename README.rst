@@ -1,16 +1,14 @@
-pyautomate is an automation tool. pyautomate can be used to automate any set
-of tasks. pyautomate offers a KISS CLI + auto.py config file interface. Unlike
-other tools, you describe a system as a `state machine`_ and specify how to get
-from one state to the other. You then use the CLI to specify the state you want
-to reach, and pyautomate will get it done. 
+pyautomate is a CLI tool to automate any set of tasks. Unlike other tools, you
+describe a state machine in a config file and use the CLI to go to a certain
+state. pyautomate will automatically find out how to get there using the config
+file you provided.
 
 To get a good idea of what pyautomate can do for you I suggest you have a quick
 scroll through `the usage section`__.
 
 __ `usage`_
 
-If you would like to use it as a library, let me know
-(limyreth@gmail.com) and I'll provide you with a documented API.
+Note: links are broken due to a rst bug in github.
 
 .. contents::
 
