@@ -4,7 +4,7 @@
   <name>pyautomate</name>
   <summary>python automation tool</summary>
 
-  <feed-for interface="http://limyreth.sin.khk.be/feeds/pyautomate.xml"/>
+  <feed-for interface="http://timdiels.be/feeds/pyautomate.xml"/>
 
   <group license="OSI Approved :: GNU General Public License (GPL)">
 
@@ -14,11 +14,11 @@
     <environment insert="" name="PYTHONPATH"/>
 
     <command name="manage-tests" >
-      <runner interface="http://limyreth.sin.khk.be/feeds/texttest.xml"/>
+      <runner interface="http://timdiels.be/feeds/texttest.xml"/>
     </command>
 
     <command name="test" >
-      <runner interface="http://limyreth.sin.khk.be/feeds/texttest.xml">
+      <runner interface="http://timdiels.be/feeds/texttest.xml">
         <arg>-g</arg>
       </runner>
     </command>

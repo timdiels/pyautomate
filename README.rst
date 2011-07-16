@@ -20,7 +20,7 @@ pyautomate is distributed using 0install, and thus requires no installation,
 you can just run it.
 
 The 0install feed (with instructions):
-http://limyreth.sin.khk.be/feeds/pyautomate.xml
+http://timdiels.be/feeds/pyautomate.xml
 
 pyautomate's state machine
 ==========================
@@ -277,7 +277,7 @@ Now that auto.py is written, you can get it to run actions for you.
 
 I like to make the following alias for pyautomate::
 
-  0alias auto http://limyreth.sin.khk.be/feeds/pyautomate.xml
+  0alias auto http://timdiels.be/feeds/pyautomate.xml
 
 Some examples::
 
@@ -456,7 +456,7 @@ auto.py::
       for name in files:
           check_call([
               'rst2html', 
-              '--stylesheet=http://limyreth.sin.khk.be/files/rst/style.css ',
+              '--stylesheet=http://timdiels.be/style.css ',
               '--link-stylesheet',
               name + '.rst',
               name + '.html'])
