@@ -442,7 +442,7 @@ auto.py::
 
   def get_initial_state():
       html_exists = files_exist(*html_files)
-      if trackers['last converted rst'].has_changed and html_exists:
+      if trackers['last converted rst'].has_changed or not html_exists:
           return 'rst'
 
       if trackers['last uploaded html'].has_changed:
