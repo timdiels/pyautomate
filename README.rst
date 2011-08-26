@@ -3,6 +3,7 @@ describe a state machine in a config file and use the CLI to go to a certain
 state. pyautomate will automatically find out how to get there using the config
 file you provided.
 
+
 To get a good idea of what pyautomate can do for you I suggest you have a quick
 scroll through `the usage section`__.
 
@@ -11,6 +12,17 @@ __ `usage`_
 Note: links are broken due to a rst bug in github.
 
 .. contents::
+
+License
+=======
+pyautomate is free software, available under the GPLv3 license.
+
+Project status
+==============
+pyautomate is not under any active development at the moment (it has all the
+features I need and there are no requests for more). The documentation is
+complete, pyautomate is tested with automated tests with good test coverage.
+pyautomate is stable.
 
 Install/run instructions
 ========================
@@ -467,10 +479,6 @@ auto.py::
       check_call(args)
       trackers['last uploaded html'].save()
 
-Planned features
-================
-Reading in the state machine from a UML state diagram file (so you can use an
-UML tool to draw it rather than having to specify YAML).
 
 .. _YAML: http://en.wikipedia.org/wiki/YAML
 .. _state machine: `pyautomate's state machine`_
