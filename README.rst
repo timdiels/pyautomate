@@ -1,4 +1,4 @@
-A more mature DAG based build system exists, see `tup`__.
+A more mature DAG based build system with better performance and more features exists, see `tup`__.
 
 __ https://github.com/gittup/tup
 
