@@ -1,4 +1,4 @@
-A more mature DAG based build system (like this tool) exists, see `tup`_. It does not appear to support conditional transitions (guards), though.
+A more mature DAG based build system (like this tool) exists, see `tup`__. It does not appear to support conditional transitions (guards), though.
 
 __ https://github.com/gittup/tup
 
