@@ -1,3 +1,7 @@
+A more mature DAG based build system (like this tool) exists, see `tup`_. It does not appear to support conditional transitions (guards), though.
+
+__ https://github.com/gittup/tup
+
 pyautomate is a CLI tool to automate any set of tasks. Unlike other tools, you
 describe a state machine in a config file and use the CLI to go to a certain
 state. pyautomate will automatically find out how to get there using the config
